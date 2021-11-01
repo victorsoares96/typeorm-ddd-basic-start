@@ -1,0 +1,27 @@
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "postgres",
+  "password": "mysecretpassword",
+  "database": "mydatabase",
+  "synchronize": false,
+  "logging": false,
+  "entities": [
+    "./src/models/*.ts"
+  ],
+  "migrations": [
+    "./src/database/migrations/*.ts"
+  ],
+  "subscribers": [
+    "./src/database/subscribers/*.ts"
+  ],
+  "factories": [
+    "./src/database/factories/*.ts"
+  ],
+  "cli": {
+    "entitiesDir": "./src/models",
+    "migrationsDir": "./src/database/migrations",
+    "subscribersDir": "./src/database/subscribers"
+  }
+}
