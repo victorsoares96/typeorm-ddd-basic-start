@@ -19,7 +19,8 @@ export class PermissionRepository implements PermissionsRepositoryMethods {
     const [error] = await validate(permission, {
       stopAtFirstError: true,
     });
-    if (error.constraints) {
+
+    if (error && error.constraints) {
       const [message] = Object.values(error.constraints);
       throw new AppError(message);
     }
@@ -32,7 +33,8 @@ export class PermissionRepository implements PermissionsRepositoryMethods {
   public async findAndCount(
     options?: FindManyOptions<Permission>,
   ): Promise<[Permission[], number]> {
-    const permissions = this.ormRepository.findAndCount(options);
+    const permissions = await this.ormRepository.findAndCount(options);
+
     return permissions;
   }
 

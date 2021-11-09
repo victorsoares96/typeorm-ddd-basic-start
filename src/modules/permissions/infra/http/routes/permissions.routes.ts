@@ -8,10 +8,6 @@ const permissionsController = new PermissionsController();
 
 permissionsRouter.use(ensureAuthenticated);
 
-/* permissionsRouter.get('/permissions', async (request, response) => {
-  const responsibilities = await permissionsRepository.find();
-
-  return response.json(responsibilities);
-}); */
+permissionsRouter.get('/permissions', permissionsController.index);
 
 permissionsRouter.post('/permissions', permissionsController.create);

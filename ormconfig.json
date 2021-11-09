@@ -8,20 +8,13 @@
   "synchronize": false,
   "logging": false,
   "entities": [
-    "./src/models/*.ts"
+    "./src/modules/**/infra/typeorm/entities/*.ts"
   ],
   "migrations": [
-    "./src/database/migrations/*.ts"
-  ],
-  "subscribers": [
-    "./src/database/subscribers/*.ts"
-  ],
-  "factories": [
-    "./src/database/factories/*.ts"
+    "./src/shared/infra/typeorm/migrations/*.ts"
   ],
   "cli": {
-    "entitiesDir": "./src/models",
-    "migrationsDir": "./src/database/migrations",
-    "subscribersDir": "./src/database/subscribers"
+    "entitiesDir": "./src/modules/**/infra/typeorm/entities",
+    "migrationsDir": "./src/shared/infra/typeorm/migrations"
   }
 }
