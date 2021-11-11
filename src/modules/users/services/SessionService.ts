@@ -1,14 +1,16 @@
-import { getRepository } from 'typeorm';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
+import { injectable, inject } from 'tsyringe';
 
 import authConfig from '@config/auth';
 import { AppError } from '@shared/errors/AppError';
 import { EAuthenticateError } from '@shared/utils/enums/e-errors';
 
 import { User } from '../infra/typeorm/entities/User';
+import { UsersRepositoryMethods } from '../repositories/UsersRepositoryMethods';
 
-interface Request {
+export interface Request {
   username: string;
   password: string;
 }
@@ -18,11 +20,15 @@ interface Response {
   token: string;
 }
 
-export class AuthenticateUserService {
-  public async execute({ username, password }: Request): Promise<Response> {
-    const usersRepository = getRepository(User);
+@injectable()
+export class SessionService {
+  constructor(
+    @inject('UsersRepository')
+    private usersRepository: UsersRepositoryMethods,
+  ) {}
 
-    const user = await usersRepository.findOne({ where: { username } });
+  public async execute({ username, password }: Request): Promise<Response> {
+    const user = await this.usersRepository.findOne({ where: { username } });
 
     if (!user)
       throw new AppError(
@@ -45,7 +51,10 @@ export class AuthenticateUserService {
     });
 
     user.lastAccess = new Date().toISOString();
-    await usersRepository.save(user);
+    await this.usersRepository.update(user);
+
+    // @ts-ignore
+    delete user.password;
 
     return { user, token };
   }

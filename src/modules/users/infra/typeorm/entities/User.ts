@@ -107,14 +107,11 @@ export class User {
   email: string;
 
   @Column({ name: 'password' })
-  @IsNotEmpty({ message: 'Password is required.' })
-  @Matches(
-    /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[$*&@#])(?:([0-9a-zA-Z$*&@#])(?!\1)){10,}$/,
-    {
-      message:
-        'Password must be at least 10 characters, 1 upper case, 1 lower case and 1 special character.',
-    },
-  )
+  // @IsNotEmpty({ message: 'Password is required.' })
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/gm, {
+    message:
+      'Password must be at least 8 characters, 1 upper case, 1 lower case and 1 special character.',
+  })
   password: string;
 
   @BeforeInsert()

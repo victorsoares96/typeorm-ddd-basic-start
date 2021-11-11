@@ -15,8 +15,11 @@ import { PermissionRepository } from '@modules/permissions/infra/typeorm/reposit
 import { AccessProfilesRepositoryMethods } from '@modules/accessProfiles/repositories/AccessProfilesRepositoryMethods';
 import { AccessProfileRepository } from '@modules/accessProfiles/infra/typeorm/repositories/AccessProfileRepository';
 
-// import { sessionsRouter } from '@modules/users/infra/http/routes/sessions.routes';
-// import { usersRouter } from '@modules/users/infra/http/routes/users.routes';
+import { UsersRepositoryMethods } from '@modules/users/repositories/UsersRepositoryMethods';
+import { UserRepository } from '@modules/users/infra/typeorm/repositories/UserRepository';
+
+import { sessionsRouter } from '@modules/users/infra/http/routes/sessions.routes';
+import { usersRouter } from '@modules/users/infra/http/routes/users.routes';
 import { accessProfilesRouter } from '@modules/accessProfiles/infra/http/routes/access-profiles.routes';
 import { permissionsRouter } from '@modules/permissions/infra/http/routes/permissions.routes';
 
@@ -52,6 +55,11 @@ class App {
       'AccessProfilesRepository',
       AccessProfileRepository,
     );
+
+    container.registerSingleton<UsersRepositoryMethods>(
+      'UsersRepository',
+      UserRepository,
+    );
   }
 
   private database(): void {
@@ -76,8 +84,8 @@ class App {
   private routes(): void {
     this.express.use('/files', express.static(uploadConfig.directory));
 
-    // this.express.use(sessionsRouter);
-    // this.express.use(usersRouter);
+    this.express.use(sessionsRouter);
+    this.express.use(usersRouter);
     this.express.use(accessProfilesRouter);
     this.express.use(permissionsRouter);
   }

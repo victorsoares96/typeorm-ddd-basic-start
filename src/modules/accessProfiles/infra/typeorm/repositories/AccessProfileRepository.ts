@@ -1,4 +1,4 @@
-import { getRepository, Repository } from 'typeorm';
+import { FindOneOptions, getRepository, Repository } from 'typeorm';
 
 import { AccessProfilesRepositoryMethods } from '@modules/accessProfiles/repositories/AccessProfilesRepositoryMethods';
 import { CreateAccessProfileDTO } from '@modules/accessProfiles/dtos/CreateAccessProfileDTO';
@@ -34,6 +34,14 @@ export class AccessProfileRepository
 
     await this.ormRepository.save(accessProfile);
     return accessProfile;
+  }
+
+  public async findOne(
+    options?: FindOneOptions<AccessProfile>,
+  ): Promise<AccessProfile | undefined> {
+    const findAccessProfile = await this.ormRepository.findOne(options);
+
+    return findAccessProfile;
   }
 
   public async findByName(name: string): Promise<AccessProfile | undefined> {

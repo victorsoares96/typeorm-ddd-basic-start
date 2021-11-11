@@ -1,37 +1,25 @@
 import { Router } from 'express';
-import multer from 'multer';
+// import multer from 'multer';
 
-import uploadConfig from '@config/upload';
-import {
-  CreateUserService,
-  Request as CreateRequest,
-} from '@modules/users/services/CreateUserService';
-import {
-  FindUserService,
-  Request as FindRequest,
-} from '@modules/users/services/FindUserService';
-import UpdateUserAvatarService from '@modules/users/services/UpdateUserAvatarService';
-import {
-  UpdateUserService,
-  Request as UpdateRequest,
-} from '@modules/users/services/UpdateUserService';
-import { RemoveUserService } from '@modules/users/services/RemoveUserService';
-import { ResetUserPasswordService } from '@modules/users/services/ResetUserPasswordService';
-import {
+// import uploadConfig from '@config/upload';
+/* import {
   CAN_REMOVE_USER,
   CAN_SOFT_REMOVE_USER,
   CAN_UPDATE_USER,
   CAN_UPDATE_USER_AVATAR,
   CAN_VIEW_USER,
-} from '@shared/utils/enums/e-access-permissions';
-import ensureAuthenticated from '@modules/users/infra/http/middlewares/ensureAuthenticated';
+} from '@shared/utils/enums/e-access-permissions'; */
+// import ensureAuthenticated from '@modules/users/infra/http/middlewares/ensureAuthenticated';
 
-import { is } from '@shared/infra/http/middlewares/ensureAuthorized';
+// import { is } from '@shared/infra/http/middlewares/ensureAuthorized';
+import { UsersController } from '../controllers/UsersController';
 
 export const usersRouter = Router();
-const upload = multer(uploadConfig);
+const usersController = new UsersController();
 
-usersRouter.get(
+// const upload = multer(uploadConfig);
+
+/* usersRouter.get(
   '/users',
   ensureAuthenticated,
   is([CAN_VIEW_USER]),
@@ -81,49 +69,11 @@ usersRouter.get(
 
     return response.json(users);
   },
-);
+); */
 
-usersRouter.post('/users', async (request, response) => {
-  const {
-    firstName,
-    lastName,
-    status,
-    accessProfileId,
-    unityId,
-    departmentId,
-    responsibilityId,
-    avatar,
-    username,
-    email,
-    phoneNumber,
-    mobileNumber,
-    password,
-  } = request.body as CreateRequest;
+usersRouter.post('/users', usersController.create);
 
-  const createUser = new CreateUserService();
-
-  const user = await createUser.execute({
-    firstName,
-    lastName,
-    status,
-    accessProfileId,
-    unityId,
-    departmentId,
-    responsibilityId,
-    avatar,
-    username,
-    email,
-    phoneNumber,
-    mobileNumber,
-    password,
-  });
-
-  delete user.password;
-
-  return response.json(user);
-});
-
-usersRouter.put(
+/* usersRouter.put(
   '/users',
   ensureAuthenticated,
   is([CAN_UPDATE_USER]),
@@ -162,9 +112,9 @@ usersRouter.put(
 
     return response.json(user);
   },
-);
+); */
 
-usersRouter.patch(
+/* usersRouter.patch(
   '/users/avatar',
   ensureAuthenticated,
   is([CAN_UPDATE_USER_AVATAR]),
@@ -181,9 +131,9 @@ usersRouter.patch(
 
     return response.json(user);
   },
-);
+); */
 
-usersRouter.delete(
+/* usersRouter.delete(
   '/users/softRemove',
   ensureAuthenticated,
   is([CAN_SOFT_REMOVE_USER]),
@@ -200,9 +150,9 @@ usersRouter.delete(
 
     return response.json(user);
   },
-);
+); */
 
-usersRouter.delete(
+/* usersRouter.delete(
   '/users/remove',
   ensureAuthenticated,
   is([CAN_REMOVE_USER]),
@@ -217,9 +167,9 @@ usersRouter.delete(
 
     return response.json(user);
   },
-);
+); */
 
-usersRouter.patch('/users/password', async (request, response) => {
+/* usersRouter.patch('/users/password', async (request, response) => {
   const { id, currentPassword, newPassword } = request.body;
 
   const resetPassword = new ResetUserPasswordService();
@@ -231,4 +181,4 @@ usersRouter.patch('/users/password', async (request, response) => {
   });
 
   return response.send();
-});
+}); */
