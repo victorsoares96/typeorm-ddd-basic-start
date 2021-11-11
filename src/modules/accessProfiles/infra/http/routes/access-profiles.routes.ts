@@ -1,34 +1,24 @@
 import { Router } from 'express';
 
 import {
-  CreateAccessProfileService,
-  Request as CreateRequest,
-} from '@modules/accessProfiles/services/CreateAccessProfileService';
-import {
-  FindAccessProfileService,
-  Request as FindRequest,
-} from '@modules/accessProfiles/services/FindAccessProfileService';
-import { InactiveAccessProfileService } from '@modules/accessProfiles/services/InactiveAccessProfileService';
-import { RecoverAccessProfileService } from '@modules/accessProfiles/services/RecoverAccessProfileService';
-import { RemoveAccessProfileService } from '@modules/accessProfiles/services/RemoveAccessProfileService';
-import { UpdateAccessProfileService } from '@modules/accessProfiles/services/UpdateAccessProfileService';
-import {
   CAN_CREATE_ACCESS_PROFILE,
-  CAN_INACTIVE_ACCESS_PROFILE,
-  CAN_RECOVER_ACCESS_PROFILE,
-  CAN_REMOVE_ACCESS_PROFILE,
-  CAN_SOFT_REMOVE_ACCESS_PROFILE,
-  CAN_UPDATE_ACCESS_PROFILE,
-  CAN_VIEW_ACCESS_PROFILES,
+  // CAN_INACTIVE_ACCESS_PROFILE,
+  // CAN_RECOVER_ACCESS_PROFILE,
+  // CAN_REMOVE_ACCESS_PROFILE,
+  // CAN_SOFT_REMOVE_ACCESS_PROFILE,
+  // CAN_UPDATE_ACCESS_PROFILE,
+  // CAN_VIEW_ACCESS_PROFILES,
 } from '@shared/utils/enums/e-access-permissions';
+import { AccessProfilesController } from '@modules/accessProfiles/infra/http/controllers/AccessProfilesController';
 import { is } from '../../../../../shared/infra/http/middlewares/ensureAuthorized';
 import ensureAuthenticated from '../../../../users/infra/http/middlewares/ensureAuthenticated';
 
 export const accessProfilesRouter = Router();
+const accessProfilesController = new AccessProfilesController();
 
 accessProfilesRouter.use(ensureAuthenticated);
 
-accessProfilesRouter.get(
+/* accessProfilesRouter.get(
   '/accessProfiles',
   is([CAN_VIEW_ACCESS_PROFILES]),
   async (request, response) => {
@@ -65,28 +55,15 @@ accessProfilesRouter.get(
 
     return response.json(accessProfiles);
   },
-);
+); */
 
 accessProfilesRouter.post(
   '/accessProfiles',
   is([CAN_CREATE_ACCESS_PROFILE]),
-  async (request, response) => {
-    const { name, description, status, permissionsId } =
-      request.body as CreateRequest;
-
-    const createAccessProfile = new CreateAccessProfileService();
-    const accessProfile = await createAccessProfile.execute({
-      name,
-      description,
-      status,
-      permissionsId,
-    });
-
-    return response.json(accessProfile);
-  },
+  accessProfilesController.create,
 );
 
-accessProfilesRouter.put(
+/* accessProfilesRouter.put(
   '/accessProfiles',
   is([CAN_UPDATE_ACCESS_PROFILE]),
   async (request, response) => {
@@ -106,9 +83,9 @@ accessProfilesRouter.put(
 
     return response.json(accessProfile);
   },
-);
+); */
 
-accessProfilesRouter.delete(
+/* accessProfilesRouter.delete(
   '/accessProfiles/softRemove',
   is([CAN_SOFT_REMOVE_ACCESS_PROFILE]),
   async (request, response) => {
@@ -124,9 +101,9 @@ accessProfilesRouter.delete(
 
     return response.json(accessProfile);
   },
-);
+); */
 
-accessProfilesRouter.delete(
+/* accessProfilesRouter.delete(
   '/accessProfiles/remove',
   is([CAN_REMOVE_ACCESS_PROFILE]),
   async (request, response) => {
@@ -139,9 +116,9 @@ accessProfilesRouter.delete(
 
     return response.json(accessProfile);
   },
-);
+); */
 
-accessProfilesRouter.patch(
+/* accessProfilesRouter.patch(
   '/accessProfiles/recover',
   is([CAN_RECOVER_ACCESS_PROFILE]),
   async (request, response) => {
@@ -158,9 +135,9 @@ accessProfilesRouter.patch(
 
     return response.send();
   },
-);
+); */
 
-accessProfilesRouter.patch(
+/* accessProfilesRouter.patch(
   '/accessProfiles/inactive',
   is([CAN_INACTIVE_ACCESS_PROFILE]),
   async (request, response) => {
@@ -177,4 +154,4 @@ accessProfilesRouter.patch(
 
     return response.send();
   },
-);
+); */

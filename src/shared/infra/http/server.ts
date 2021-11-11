@@ -1,22 +1,23 @@
 import 'reflect-metadata';
 
 import express from 'express';
-import { container, DependencyContainer } from 'tsyringe';
+import { container } from 'tsyringe';
 import 'express-async-errors';
 
 import { Connection } from 'typeorm';
-// import uploadConfig from '@config/upload';
+import uploadConfig from '@config/upload';
 
 import connection from '@shared/infra/typeorm';
-
-// import '@shared/container';
 
 import { PermissionsRepositoryMethods } from '@modules/permissions/repositories/PermissionsRepositoryMethods';
 import { PermissionRepository } from '@modules/permissions/infra/typeorm/repositories/PermissionRepository';
 
+import { AccessProfilesRepositoryMethods } from '@modules/accessProfiles/repositories/AccessProfilesRepositoryMethods';
+import { AccessProfileRepository } from '@modules/accessProfiles/infra/typeorm/repositories/AccessProfileRepository';
+
 // import { sessionsRouter } from '@modules/users/infra/http/routes/sessions.routes';
 // import { usersRouter } from '@modules/users/infra/http/routes/users.routes';
-// import { accessProfilesRouter } from '@modules/accessProfiles/infra/http/routes/access-profiles.routes';
+import { accessProfilesRouter } from '@modules/accessProfiles/infra/http/routes/access-profiles.routes';
 import { permissionsRouter } from '@modules/permissions/infra/http/routes/permissions.routes';
 
 import errorHandler from './middlewares/errorHandler';
@@ -26,14 +27,11 @@ class App {
 
   public connection: Promise<Connection>;
 
-  public container: DependencyContainer;
-
   public constructor() {
     this.express = express();
     this.express.use(express.json());
 
     this.connection = connection();
-    this.container = container;
 
     this.database();
     this.routes();
@@ -44,15 +42,24 @@ class App {
     this.express.use(errorHandler);
   }
 
+  private tsyringe(): void {
+    container.registerSingleton<PermissionsRepositoryMethods>(
+      'PermissionsRepository',
+      PermissionRepository,
+    );
+
+    container.registerSingleton<AccessProfilesRepositoryMethods>(
+      'AccessProfilesRepository',
+      AccessProfileRepository,
+    );
+  }
+
   private database(): void {
     this.connection
       .then(() => {
         console.log('📦  Connected to database!');
         this.startServer();
-        this.container.registerSingleton<PermissionsRepositoryMethods>(
-          'PermissionsRepository',
-          PermissionRepository,
-        );
+        this.tsyringe();
       })
       .catch(error => {
         console.log('❌  Error when initializing the database.');
@@ -67,11 +74,11 @@ class App {
   }
 
   private routes(): void {
-    // this.express.use('/files', express.static(uploadConfig.directory));
+    this.express.use('/files', express.static(uploadConfig.directory));
 
     // this.express.use(sessionsRouter);
     // this.express.use(usersRouter);
-    // this.express.use(accessProfilesRouter);
+    this.express.use(accessProfilesRouter);
     this.express.use(permissionsRouter);
   }
 }

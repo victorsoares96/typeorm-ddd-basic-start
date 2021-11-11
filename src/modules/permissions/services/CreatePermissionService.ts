@@ -8,8 +8,6 @@ import { PermissionsRepositoryMethods } from '../repositories/PermissionsReposit
 
 export interface Request {
   name: string;
-  createdById?: string;
-  createdByName?: string;
 }
 
 @injectable()

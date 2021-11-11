@@ -45,4 +45,13 @@ export class PermissionRepository implements PermissionsRepositoryMethods {
 
     return findPermission;
   }
+
+  public async findByIdsOrFail(
+    ids: any[],
+    options?: FindManyOptions<Permission>,
+  ): Promise<Permission[] | undefined> {
+    const findPermissions = await this.ormRepository.findByIds(ids, options);
+    if (findPermissions.length === ids.length) return findPermissions;
+    return undefined;
+  }
 }

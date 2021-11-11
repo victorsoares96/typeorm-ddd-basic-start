@@ -21,20 +21,6 @@ export class Permission {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @Column({
-    name: 'created_by_id',
-    nullable: true,
-    default: null,
-  })
-  createdById: string;
-
-  @Column({
-    name: 'created_by_name',
-    nullable: true,
-    default: null,
-  })
-  createdByName: string;
-
   @ManyToMany(() => AccessProfile, accessProfile => accessProfile.permissions, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',

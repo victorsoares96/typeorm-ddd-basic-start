@@ -6,4 +6,8 @@ export interface PermissionsRepositoryMethods {
   create(data: CreatePermissionDTO): Promise<Permission>;
   findAndCount(options?: FindManyOptions): Promise<[Permission[], number]>;
   findByName(name: string): Promise<Permission | undefined>;
+  findByIdsOrFail(
+    ids: any[],
+    options?: FindManyOptions<Permission>,
+  ): Promise<Permission[] | undefined>;
 }

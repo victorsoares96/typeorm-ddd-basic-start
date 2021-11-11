@@ -1,15 +1,15 @@
 import { validate } from 'class-validator';
-import { getCustomRepository } from 'typeorm';
+import { injectable, inject } from 'tsyringe';
 
-import { AppError } from '@shared/errors/AppError';
-import { PermissionRepository } from '@modules/permissions/infra/typeorm/repositories/PermissionRepository';
+import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
+
 import {
   EAccessProfileError,
   EPermissionError,
 } from '@shared/utils/enums/e-errors';
-
-import { AccessProfile } from '../infra/typeorm/entities/AccessProfile';
-import { AccessProfileRepository } from '../infra/typeorm/repositories/AccessProfileRepository';
+import { AppError } from '@shared/errors/AppError';
+import { PermissionsRepositoryMethods } from '@modules/permissions/repositories/PermissionsRepositoryMethods';
+import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
 
 export interface Request {
   name: string;
@@ -23,29 +23,32 @@ export interface Request {
   permissionsId: string;
 }
 
+@injectable()
 export class CreateAccessProfileService {
+  constructor(
+    @inject('AccessProfilesRepository')
+    private accessProfilesRepository: AccessProfilesRepositoryMethods,
+    @inject('PermissionsRepository')
+    private permissionsRepository: PermissionsRepositoryMethods,
+  ) {}
+
   public async execute(accessProfileData: Request): Promise<AccessProfile> {
     const { name, permissionsId } = accessProfileData;
 
     if (!permissionsId) throw new AppError(EPermissionError.IdIsRequired);
 
-    const accessProfilesRepository = getCustomRepository(
-      AccessProfileRepository,
-    );
+    const accessProfileWithSameName =
+      await this.accessProfilesRepository.findByName(name);
 
-    const accessProfileWithSameName = await accessProfilesRepository.findByName(
-      name,
-    );
     if (accessProfileWithSameName)
       throw new AppError(EAccessProfileError.AccessProfileAlreadyExist);
 
     const ids = permissionsId.split(',');
-    const permissionsRepository = getCustomRepository(PermissionRepository);
-    const permissions = await permissionsRepository.findByIds(ids);
+    const permissions = await this.permissionsRepository.findByIdsOrFail(ids);
 
     if (!permissions) throw new AppError(EPermissionError.NotFound);
 
-    const accessProfile = await accessProfilesRepository.create({
+    const accessProfile = await this.accessProfilesRepository.create({
       ...accessProfileData,
       permissions,
     });
