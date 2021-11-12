@@ -1,9 +1,9 @@
-import { getRepository } from 'typeorm';
+import { injectable, inject } from 'tsyringe';
 
 import { AppError } from '@shared/errors/AppError';
-import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
 import { EAccessProfileStatus } from '@shared/utils/enums/e-access-profile';
 import { EAccessProfileError } from '@shared/utils/enums/e-errors';
+import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
 
 interface Request {
   id: string;
@@ -11,15 +11,21 @@ interface Request {
   updatedByName: string;
 }
 
+@injectable()
 export class InactiveAccessProfileService {
+  constructor(
+    @inject('AccessProfilesRepository')
+    private accessProfilesRepository: AccessProfilesRepositoryMethods,
+  ) {}
+
   public async execute({
     id,
     updatedById,
     updatedByName,
   }: Request): Promise<void> {
-    const accessProfilesRepository = getRepository(AccessProfile);
-
-    const accessProfile = await accessProfilesRepository.findOne(id);
+    const accessProfile = await this.accessProfilesRepository.findOne({
+      where: { id },
+    });
 
     if (!accessProfile) throw new AppError(EAccessProfileError.NotFound);
 
@@ -27,6 +33,6 @@ export class InactiveAccessProfileService {
     accessProfile.updatedById = updatedById;
     accessProfile.updatedByName = updatedByName;
 
-    await accessProfilesRepository.save(accessProfile);
+    await this.accessProfilesRepository.update(accessProfile);
   }
 }

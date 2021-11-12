@@ -1,5 +1,7 @@
-import { getRepository, ILike } from 'typeorm';
+import { ILike } from 'typeorm';
+import { injectable, inject } from 'tsyringe';
 import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
+import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
 
 export interface Request {
   name: string;
@@ -16,20 +18,24 @@ export interface Request {
   limit?: number;
 }
 
+@injectable()
 export class FindAccessProfileService {
+  constructor(
+    @inject('AccessProfilesRepository')
+    private accessProfilesRepository: AccessProfilesRepositoryMethods,
+  ) {}
+
   public async execute(
     accessProfileData: Request,
   ): Promise<[AccessProfile[], number]> {
     const {
       name = '',
-      description = null,
+      description = '',
       isDeleted = false,
       offset = 0,
       isAscending = false,
       limit = 20,
     } = accessProfileData;
-
-    const accessProfilesRepository = getRepository(AccessProfile);
 
     const filters = Object.entries(accessProfileData).filter(
       ([, value]) => value,
@@ -41,12 +47,12 @@ export class FindAccessProfileService {
     delete query.isAscending;
     delete query.limit;
 
-    const accessProfiles = await accessProfilesRepository.findAndCount({
+    const accessProfiles = await this.accessProfilesRepository.findAndCount({
       where: [
         {
           ...query,
           name: ILike(`%${name}%`),
-          description: description ? ILike(`%${description}%`) : null,
+          description: ILike(`%${description}%`),
         },
       ],
       loadEagerRelations: true,

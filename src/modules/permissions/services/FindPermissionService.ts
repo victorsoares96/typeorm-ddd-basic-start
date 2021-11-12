@@ -12,13 +12,13 @@ export interface Request {
 export class FindPermissionService {
   constructor(
     @inject('PermissionsRepository')
-    private permissionsRepositoryy: PermissionsRepositoryMethods,
+    private permissionsRepository: PermissionsRepositoryMethods,
   ) {}
 
   public async execute({
     name = '',
   }: Request): Promise<[Permission[], number]> {
-    const permissions = await this.permissionsRepositoryy.findAndCount({
+    const permissions = await this.permissionsRepository.findAndCount({
       where: [
         {
           name: ILike(`%${name}%`),

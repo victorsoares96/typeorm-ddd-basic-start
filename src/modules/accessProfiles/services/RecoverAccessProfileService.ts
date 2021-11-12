@@ -1,25 +1,34 @@
 import { getRepository } from 'typeorm';
+import { injectable, inject } from 'tsyringe';
 
 import { AppError } from '@shared/errors/AppError';
 import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
 import { EAccessProfileStatus } from '@shared/utils/enums/e-access-profile';
 import { EAccessProfileError } from '@shared/utils/enums/e-errors';
+import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
 
 interface Request {
-  id: string;
+  ids: string;
   updatedById: string;
   updatedByName: string;
 }
 
+@injectable()
 export class RecoverAccessProfileService {
+  constructor(
+    @inject('AccessProfilesRepository')
+    private accessProfilesRepository: AccessProfilesRepositoryMethods,
+  ) {}
+
   public async execute({
-    id,
+    ids,
     updatedById,
     updatedByName,
   }: Request): Promise<void> {
-    const accessProfilesRepository = getRepository(AccessProfile);
-
-    const accessProfile = await accessProfilesRepository.findOne(id, {
+    const accessProfilesIds = ids.split(',');
+    getRepository(AccessProfile).findByIds();
+    const accessProfile = await this.accessProfilesRepository.findOne({
+      where: { id },
       withDeleted: true,
     });
 

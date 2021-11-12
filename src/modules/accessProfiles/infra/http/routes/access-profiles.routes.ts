@@ -2,12 +2,12 @@ import { Router } from 'express';
 
 import {
   CAN_CREATE_ACCESS_PROFILE,
-  // CAN_INACTIVE_ACCESS_PROFILE,
+  CAN_INACTIVE_ACCESS_PROFILE,
   // CAN_RECOVER_ACCESS_PROFILE,
   // CAN_REMOVE_ACCESS_PROFILE,
   // CAN_SOFT_REMOVE_ACCESS_PROFILE,
   // CAN_UPDATE_ACCESS_PROFILE,
-  // CAN_VIEW_ACCESS_PROFILES,
+  CAN_VIEW_ACCESS_PROFILES,
 } from '@shared/utils/enums/e-access-permissions';
 import { AccessProfilesController } from '@modules/accessProfiles/infra/http/controllers/AccessProfilesController';
 import { is } from '../../../../../shared/infra/http/middlewares/ensureAuthorized';
@@ -18,44 +18,11 @@ const accessProfilesController = new AccessProfilesController();
 
 accessProfilesRouter.use(ensureAuthenticated);
 
-/* accessProfilesRouter.get(
+accessProfilesRouter.get(
   '/accessProfiles',
   is([CAN_VIEW_ACCESS_PROFILES]),
-  async (request, response) => {
-    const {
-      name,
-      description,
-      status,
-      createdAt,
-      createdById,
-      updatedAt,
-      updatedById,
-      deletionDate,
-      isDeleted,
-      offset,
-      isAscending,
-      limit,
-    } = request.body as FindRequest;
-
-    const findAccessProfiles = new FindAccessProfileService();
-    const accessProfiles = await findAccessProfiles.execute({
-      name,
-      description,
-      status,
-      createdAt,
-      createdById,
-      updatedAt,
-      updatedById,
-      deletionDate,
-      isDeleted,
-      offset,
-      isAscending,
-      limit,
-    });
-
-    return response.json(accessProfiles);
-  },
-); */
+  accessProfilesController.index,
+);
 
 accessProfilesRouter.post(
   '/accessProfiles',
@@ -137,21 +104,8 @@ accessProfilesRouter.post(
   },
 ); */
 
-/* accessProfilesRouter.patch(
+accessProfilesRouter.patch(
   '/accessProfiles/inactive',
   is([CAN_INACTIVE_ACCESS_PROFILE]),
-  async (request, response) => {
-    const { id } = request.body;
-    const { id: userId, name: userName } = request.user;
-
-    const inactiveAccessProfile = new InactiveAccessProfileService();
-
-    await inactiveAccessProfile.execute({
-      id,
-      updatedById: userId,
-      updatedByName: userName,
-    });
-
-    return response.send();
-  },
-); */
+  accessProfilesController.inactive,
+);

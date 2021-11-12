@@ -10,17 +10,14 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-import {
-  IsEmail,
-  IsNotEmpty,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { hashSync } from 'bcryptjs';
+import { IsEmail, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
 
 import { EUserStatus } from '@shared/utils/enums/e-user';
 import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
+import { IsValidPassword } from '@shared/infra/typeorm/decorators/IsValidPassword';
+import { IsUserAlreadyExist } from '@shared/infra/typeorm/decorators/IsUserAlreadyExist';
+import { EUserError } from '@shared/utils/enums/e-errors';
 
 @Entity('user')
 export class User {
@@ -99,6 +96,7 @@ export class User {
   @Column({ name: 'username', unique: true })
   @MinLength(5, { message: 'Username is too short.' })
   @MaxLength(15, { message: 'Username is too long.' })
+  @IsUserAlreadyExist({ message: EUserError.AlreadyExist })
   username: string;
 
   @Column({ name: 'email', unique: true })
@@ -107,10 +105,8 @@ export class User {
   email: string;
 
   @Column({ name: 'password' })
-  // @IsNotEmpty({ message: 'Password is required.' })
-  @Matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/gm, {
-    message:
-      'Password must be at least 8 characters, 1 upper case, 1 lower case and 1 special character.',
+  @IsValidPassword({
+    message: 'Password must be at least 8 characters, 1 upper case, 1 number.',
   })
   password: string;
 
@@ -118,5 +114,10 @@ export class User {
   @BeforeUpdate()
   generateFullName?(): void {
     this.fullName = `${this.firstName} ${this.lastName}`;
+  }
+
+  @BeforeInsert()
+  hashPassword?(): void {
+    this.password = hashSync(this.password, 8);
   }
 }
