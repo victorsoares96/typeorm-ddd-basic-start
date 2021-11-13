@@ -8,7 +8,7 @@ export interface Request {
 }
 
 @injectable()
-export class RemoveAccessProfileService {
+export class SoftRemoveAccessProfileService {
   constructor(
     @inject('AccessProfilesRepository')
     private accessProfilesRepository: AccessProfilesRepositoryMethods,
@@ -23,6 +23,6 @@ export class RemoveAccessProfileService {
 
     if (!accessProfiles) throw new AppError(EAccessProfileError.NotFound);
 
-    await this.accessProfilesRepository.remove(accessProfiles);
+    await this.accessProfilesRepository.softRemove(accessProfiles);
   }
 }

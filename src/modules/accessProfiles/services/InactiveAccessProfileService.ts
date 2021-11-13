@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { injectable, inject } from 'tsyringe';
 
 import { AppError } from '@shared/errors/AppError';
@@ -6,7 +7,7 @@ import { EAccessProfileError } from '@shared/utils/enums/e-errors';
 import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
 
 interface Request {
-  id: string;
+  ids: string;
   updatedById: string;
   updatedByName: string;
 }
@@ -19,20 +20,30 @@ export class InactiveAccessProfileService {
   ) {}
 
   public async execute({
-    id,
+    ids,
     updatedById,
     updatedByName,
   }: Request): Promise<void> {
-    const accessProfile = await this.accessProfilesRepository.findOne({
-      where: { id },
+    const accessProfilesIds = ids.split(',');
+
+    const accessProfiles = await this.accessProfilesRepository.findByIds(
+      accessProfilesIds,
+    );
+
+    if (!accessProfiles) throw new AppError(EAccessProfileError.NotFound);
+    if (
+      accessProfiles.some(
+        accessProfile => accessProfile.status === EAccessProfileStatus.Inactive,
+      )
+    )
+      throw new AppError(EAccessProfileError.NotDisabled);
+
+    accessProfiles.forEach(accessProfile => {
+      accessProfile.status = EAccessProfileStatus.Inactive;
+      accessProfile.updatedById = updatedById;
+      accessProfile.updatedByName = updatedByName;
     });
 
-    if (!accessProfile) throw new AppError(EAccessProfileError.NotFound);
-
-    accessProfile.status = EAccessProfileStatus.Inactive;
-    accessProfile.updatedById = updatedById;
-    accessProfile.updatedByName = updatedByName;
-
-    await this.accessProfilesRepository.update(accessProfile);
+    await this.accessProfilesRepository.update(accessProfiles);
   }
 }

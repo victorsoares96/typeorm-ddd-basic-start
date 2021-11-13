@@ -10,6 +10,10 @@ import {
   Request as FindRequest,
 } from '@modules/accessProfiles/services/FindAccessProfileService';
 import { InactiveAccessProfileService } from '@modules/accessProfiles/services/InactiveAccessProfileService';
+import { RecoverAccessProfileService } from '@modules/accessProfiles/services/RecoverAccessProfileService';
+import { RemoveAccessProfileService } from '@modules/accessProfiles/services/RemoveAccessProfileService';
+import { SoftRemoveAccessProfileService } from '@modules/accessProfiles/services/SoftRemoveAccessProfileService';
+import { UpdateAccessProfileService } from '@modules/accessProfiles/services/UpdateAccessProfileService';
 
 export class AccessProfilesController {
   public async create(request: Request, response: Response): Promise<Response> {
@@ -38,19 +42,92 @@ export class AccessProfilesController {
     request: Request,
     response: Response,
   ): Promise<Response> {
-    const { id } = request.body;
-    const { id: userId, name: userName } = request.user;
+    const { ids } = request.body;
+    // const { id: userId, name: userName } = request.user;
 
     const inactiveAccessProfile = container.resolve(
       InactiveAccessProfileService,
     );
 
     await inactiveAccessProfile.execute({
-      id,
-      updatedById: userId,
-      updatedByName: userName,
+      ids,
+      // updatedById: userId,
+      // updatedByName: userName,
+      updatedById: '',
+      updatedByName: '',
     });
 
     return response.send();
+  }
+
+  public async recover(
+    request: Request,
+    response: Response,
+  ): Promise<Response> {
+    const { ids } = request.body;
+    // const { id: userId, name: userName } = request.user;
+
+    const recoverAccessProfiles = container.resolve(
+      RecoverAccessProfileService,
+    );
+
+    await recoverAccessProfiles.execute({
+      ids,
+      // updatedById: userId,
+      // updatedByName: userName,
+      updatedById: '',
+      updatedByName: '',
+    });
+
+    return response.send();
+  }
+
+  public async remove(request: Request, response: Response): Promise<Response> {
+    const { ids } = request.body;
+
+    const removeAccessProfiles = container.resolve(RemoveAccessProfileService);
+
+    await removeAccessProfiles.execute({
+      ids,
+    });
+
+    return response.send();
+  }
+
+  public async softRemove(
+    request: Request,
+    response: Response,
+  ): Promise<Response> {
+    const { ids } = request.body;
+
+    const softRemoveAccessProfiles = container.resolve(
+      SoftRemoveAccessProfileService,
+    );
+
+    await softRemoveAccessProfiles.execute({
+      ids,
+    });
+
+    return response.send();
+  }
+
+  public async update(request: Request, response: Response): Promise<Response> {
+    // const { id: userId, name: userName } = request.user;
+    const { id, name, permissionsId, description } = request.body;
+
+    const updateAccessProfile = container.resolve(UpdateAccessProfileService);
+
+    const accessProfile = await updateAccessProfile.execute({
+      id,
+      name,
+      permissionsId,
+      description,
+      // updatedById: userId,
+      // updatedByName: userName,
+      updatedById: '',
+      updatedByName: '',
+    });
+
+    return response.json(accessProfile);
   }
 }

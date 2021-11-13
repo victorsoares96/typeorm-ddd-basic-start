@@ -8,6 +8,7 @@ import {
 import { AccessProfilesRepositoryMethods } from '@modules/accessProfiles/repositories/AccessProfilesRepositoryMethods';
 import { CreateAccessProfileDTO } from '@modules/accessProfiles/dtos/CreateAccessProfileDTO';
 import { UpdateAccessProfileDTO } from '@modules/accessProfiles/dtos/UpdateAccessProfileDTO';
+import { RemoveAccessProfileDTO } from '@modules/accessProfiles/dtos/RemoveAccessProfileDTO';
 import { RecoverAccessProfileDTO } from '@modules/accessProfiles/dtos/RecoverAccessProfileDTO';
 import { AccessProfile } from '../entities/AccessProfile';
 
@@ -59,6 +60,15 @@ export class AccessProfileRepository
     return accessProfiles;
   }
 
+  public async findByIds(
+    ids: any[],
+    options?: FindManyOptions<AccessProfile>,
+  ): Promise<AccessProfile[] | undefined> {
+    const findAccessProfiles = await this.ormRepository.findByIds(ids, options);
+    if (findAccessProfiles.length === ids.length) return findAccessProfiles;
+    return undefined;
+  }
+
   public async findByName(name: string): Promise<AccessProfile | undefined> {
     const findAccessProfile = await this.ormRepository.findOne({
       where: { name },
@@ -67,15 +77,29 @@ export class AccessProfileRepository
     return findAccessProfile;
   }
 
-  public async update(data: UpdateAccessProfileDTO): Promise<AccessProfile> {
-    const accessProfile = await this.ormRepository.save(data);
-    return accessProfile;
+  public async update(
+    data: UpdateAccessProfileDTO[],
+  ): Promise<AccessProfile[]> {
+    const accessProfiles = await this.ormRepository.save(data);
+    return accessProfiles;
   }
 
   public async recover(
-    accessProfiles: RecoverAccessProfileDTO[],
+    data: RecoverAccessProfileDTO[],
   ): Promise<AccessProfile[]> {
-    const accessProfile = await this.ormRepository.recover(accessProfiles);
-    return accessProfile;
+    const accessProfiles = await this.ormRepository.recover(data);
+    return accessProfiles;
+  }
+
+  public async remove(data: AccessProfile[]): Promise<AccessProfile[]> {
+    const accessProfiles = await this.ormRepository.remove(data);
+    return accessProfiles;
+  }
+
+  public async softRemove(
+    data: RemoveAccessProfileDTO[],
+  ): Promise<AccessProfile[]> {
+    const accessProfiles = await this.ormRepository.softRemove(data);
+    return accessProfiles;
   }
 }
