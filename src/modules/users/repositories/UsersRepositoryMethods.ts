@@ -7,10 +7,11 @@ import { User } from '../infra/typeorm/entities/User';
 export interface UsersRepositoryMethods {
   create(data: CreateUserDTO): Promise<User>;
   findOne(options?: FindOneOptions<User>): Promise<User | undefined>;
-  findByIdsOrFail(
+  findAndCount(options?: FindManyOptions<User>): Promise<[User[], number]>;
+  findByIds(
     ids: any[],
     options?: FindManyOptions<User>,
   ): Promise<User[] | undefined>;
   findByUsername(username: string): Promise<User | undefined>;
-  update(data: UpdateUserDTO): Promise<User>;
+  update(data: UpdateUserDTO[]): Promise<User[]>;
 }

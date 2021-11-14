@@ -1,5 +1,7 @@
-import { getRepository, ILike } from 'typeorm';
+import { injectable, inject } from 'tsyringe';
+import { ILike } from 'typeorm';
 import { User } from '@modules/users/infra/typeorm/entities/User';
+import { UsersRepositoryMethods } from '../repositories/UsersRepositoryMethods';
 
 export interface Request {
   firstName: string;
@@ -8,21 +10,23 @@ export interface Request {
   status: number;
   createdAt: Date;
   createdById: string;
-  updatedAt: Date;
-  updatedById: string;
   deletionDate: Date;
   lastAccess: string;
   username: string;
   email: string;
-  phoneNumber: string;
-  mobileNumber: string;
   isDeleted?: boolean;
   offset?: number;
   isAscending?: boolean;
   limit?: number;
 }
 
+@injectable()
 export class FindUserService {
+  constructor(
+    @inject('UsersRepository')
+    private usersRepository: UsersRepositoryMethods,
+  ) {}
+
   public async execute(userData: Request): Promise<[User[], number]> {
     const {
       firstName = '',
@@ -36,8 +40,6 @@ export class FindUserService {
       limit = 20,
     } = userData;
 
-    const usersRepository = getRepository(User);
-
     const filters = Object.entries(userData).filter(([, value]) => value);
     const query = Object.fromEntries(filters) as Request;
 
@@ -46,7 +48,7 @@ export class FindUserService {
     delete query.isAscending;
     delete query.limit;
 
-    const users = await usersRepository.findAndCount({
+    const users = await this.usersRepository.findAndCount({
       where: [
         {
           ...query,

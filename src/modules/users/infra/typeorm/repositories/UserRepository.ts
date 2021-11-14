@@ -46,7 +46,15 @@ export class UserRepository implements UsersRepositoryMethods {
     return findUser;
   }
 
-  public async findByIdsOrFail(
+  public async findAndCount(
+    options?: FindManyOptions<User>,
+  ): Promise<[User[], number]> {
+    const accessUsers = await this.ormRepository.findAndCount(options);
+
+    return accessUsers;
+  }
+
+  public async findByIds(
     ids: any[],
     options?: FindManyOptions<User>,
   ): Promise<User[] | undefined> {
@@ -63,8 +71,8 @@ export class UserRepository implements UsersRepositoryMethods {
     return findUser;
   }
 
-  public async update(data: UpdateUserDTO): Promise<User> {
-    const user = await this.ormRepository.save(data);
-    return user;
+  public async update(data: UpdateUserDTO[]): Promise<User[]> {
+    const users = await this.ormRepository.save(data);
+    return users;
   }
 }

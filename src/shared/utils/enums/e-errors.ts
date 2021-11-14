@@ -23,6 +23,7 @@ export enum EUserError {
   IsRequired = 'The user is required.',
   CurrentOrNewPasswordRequired = 'The current password/new password is required.',
   IncorrectPassword = 'The password is incorrect.',
+  SomeAlreadyInactive = 'Some or some users are already inactive.',
 }
 
 export enum EGenericError {
