@@ -1,24 +1,29 @@
-import { getRepository } from 'typeorm';
+import { injectable, inject } from 'tsyringe';
 import path from 'path';
 import fs from 'fs';
 
 import uploadConfig from '@config/upload';
 import { AppError } from '@shared/errors/AppError';
 import { User } from '@modules/users/infra/typeorm/entities/User';
-import { EGenericError } from '@shared/utils/enums/e-errors';
+import { EUserError } from '@shared/utils/enums/e-errors';
+import { UsersRepositoryMethods } from '../repositories/UsersRepositoryMethods';
 
 interface Request {
   userId: string;
   avatarFilename: string;
 }
 
-class UpdateUserAvatarService {
+@injectable()
+export class UpdateUserAvatarService {
+  constructor(
+    @inject('UsersRepository')
+    private usersRepository: UsersRepositoryMethods,
+  ) {}
+
   public async execute({ userId, avatarFilename }: Request): Promise<User> {
-    const usersRepository = getRepository(User);
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
 
-    const user = await usersRepository.findOne(userId);
-
-    if (!user) throw new AppError(EGenericError.AvatarFilenameRequired, 401);
+    if (!user) throw new AppError(EUserError.NotFound);
 
     if (user.avatar) {
       const userAvatarFilePath = path.join(uploadConfig.directory, user.avatar);
@@ -29,10 +34,8 @@ class UpdateUserAvatarService {
 
     user.avatar = avatarFilename;
 
-    await usersRepository.save(user);
+    await this.usersRepository.update([user]);
 
     return user;
   }
 }
-
-export default UpdateUserAvatarService;

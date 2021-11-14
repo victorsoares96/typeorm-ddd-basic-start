@@ -12,6 +12,8 @@ import { CreateUserDTO } from '@modules/users/dtos/CreateUserDTO';
 import { validate } from 'class-validator';
 import { AppError } from '@shared/errors/AppError';
 import { UpdateUserDTO } from '@modules/users/dtos/UpdateUserDTO';
+import { RecoverUserDTO } from '@modules/users/dtos/RecoverUserDTO';
+import { UserDTO } from '@modules/users/dtos/UserDTO';
 
 @EntityRepository(User)
 export class UserRepository implements UsersRepositoryMethods {
@@ -73,6 +75,21 @@ export class UserRepository implements UsersRepositoryMethods {
 
   public async update(data: UpdateUserDTO[]): Promise<User[]> {
     const users = await this.ormRepository.save(data);
+    return users;
+  }
+
+  public async recover(data: RecoverUserDTO[]): Promise<User[]> {
+    const users = await this.ormRepository.recover(data);
+    return users;
+  }
+
+  public async remove(data: UserDTO[]): Promise<User[]> {
+    const users = await this.ormRepository.remove(data);
+    return users;
+  }
+
+  public async softRemove(data: UserDTO[]): Promise<User[]> {
+    const users = await this.ormRepository.softRemove(data);
     return users;
   }
 }

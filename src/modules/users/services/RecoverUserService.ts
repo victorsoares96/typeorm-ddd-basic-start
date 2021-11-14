@@ -1,38 +1,44 @@
-import { getRepository } from 'typeorm';
+import { injectable, inject } from 'tsyringe';
 
 import { AppError } from '@shared/errors/AppError';
-import { User } from '@modules/users/infra/typeorm/entities/User';
 import { EUserError } from '@shared/utils/enums/e-errors';
 import { EUserStatus } from '@shared/utils/enums/e-user';
+import { UsersRepositoryMethods } from '../repositories/UsersRepositoryMethods';
 
 interface Request {
-  id: string;
+  ids: string;
   updatedById: string;
   updatedByName: string;
 }
 
+@injectable()
 export class RecoverUserService {
+  constructor(
+    @inject('UsersRepository')
+    private usersRepository: UsersRepositoryMethods,
+  ) {}
+
   public async execute({
-    id,
+    ids,
     updatedById,
     updatedByName,
   }: Request): Promise<void> {
-    const usersRepository = getRepository(User);
+    const usersId = ids.split(',');
 
-    const user = await usersRepository.findOne(id, {
+    const users = await this.usersRepository.findByIds(usersId, {
       withDeleted: true,
     });
 
-    if (!user) throw new AppError(EUserError.NotFound);
-    if (user.status === EUserStatus.Active)
-      throw new AppError(EUserError.NotDisabled);
+    if (!users) throw new AppError(EUserError.SomeNotFound);
 
-    user.status = EUserStatus.Active;
-    user.updatedById = updatedById;
-    user.updatedByName = updatedByName;
+    users.forEach(user => {
+      user.status = EUserStatus.Active;
+      user.updatedById = updatedById;
+      user.updatedByName = updatedByName;
+    });
 
-    await usersRepository.save(user);
+    await this.usersRepository.update(users);
 
-    await usersRepository.recover(user);
+    await this.usersRepository.recover(users);
   }
 }

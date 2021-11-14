@@ -1,13 +1,14 @@
 import { Router } from 'express';
-// import multer from 'multer';
+import multer from 'multer';
 
-// import uploadConfig from '@config/upload';
+import uploadConfig from '@config/upload';
 import {
-  // CAN_REMOVE_USER,
-  // CAN_SOFT_REMOVE_USER,
-  // CAN_UPDATE_USER,
-  // CAN_UPDATE_USER_AVATAR,
+  CAN_REMOVE_USER,
+  CAN_SOFT_REMOVE_USER,
+  CAN_UPDATE_USER,
+  CAN_UPDATE_USER_AVATAR,
   CAN_VIEW_USER,
+  CAN_RECOVER_USER,
 } from '@shared/utils/enums/e-access-permissions';
 import ensureAuthenticated from '@modules/users/infra/http/middlewares/ensureAuthenticated';
 
@@ -17,7 +18,7 @@ import { UsersController } from '../controllers/UsersController';
 export const usersRouter = Router();
 const usersController = new UsersController();
 
-// const upload = multer(uploadConfig);
+const upload = multer(uploadConfig);
 
 usersRouter.get(
   '/users',
@@ -26,114 +27,49 @@ usersRouter.get(
   usersController.index,
 );
 
-usersRouter.post('/users', usersController.create);
+usersRouter.post('/users', ensureAuthenticated, usersController.create);
 
-/* usersRouter.put(
+usersRouter.put(
   '/users',
   ensureAuthenticated,
   is([CAN_UPDATE_USER]),
-  async (request, response) => {
-    const {
-      id,
-      firstName,
-      lastName,
-      status,
-      email,
-      phoneNumber,
-      mobileNumber,
-      unityId,
-      departmentId,
-      responsibilityId,
-      accessProfileId,
-    } = request.body as UpdateRequest;
-    const { id: userId, name: userName } = request.user;
+  usersController.update,
+);
 
-    const updateUser = new UpdateUserService();
-    const user = await updateUser.execute({
-      id,
-      firstName,
-      lastName,
-      status,
-      email,
-      phoneNumber,
-      mobileNumber,
-      unityId,
-      departmentId,
-      responsibilityId,
-      accessProfileId,
-      updatedById: userId,
-      updatedByName: userName,
-    });
-
-    return response.json(user);
-  },
-); */
-
-/* usersRouter.patch(
+usersRouter.patch(
   '/users/avatar',
   ensureAuthenticated,
   is([CAN_UPDATE_USER_AVATAR]),
   upload.single('avatar'),
-  async (request, response) => {
-    const updateUserAvatar = new UpdateUserAvatarService();
+  usersController.updateAvatar,
+);
 
-    const user = await updateUserAvatar.execute({
-      userId: request.user.id,
-      avatarFilename: request.file.filename,
-    });
-
-    delete user.password;
-
-    return response.json(user);
-  },
-); */
-
-/* usersRouter.delete(
+usersRouter.delete(
   '/users/softRemove',
   ensureAuthenticated,
   is([CAN_SOFT_REMOVE_USER]),
-  async (request, response) => {
-    const { id } = request.body;
+  usersController.softRemove,
+);
 
-    const removeUser = new RemoveUserService({
-      softRemove: true,
-    });
-
-    const user = await removeUser.execute({
-      id,
-    });
-
-    return response.json(user);
-  },
-); */
-
-/* usersRouter.delete(
+usersRouter.delete(
   '/users/remove',
   ensureAuthenticated,
   is([CAN_REMOVE_USER]),
-  async (request, response) => {
-    const { id } = request.body;
+  usersController.remove,
+);
 
-    const removeUser = new RemoveUserService();
+usersRouter.patch(
+  '/users/recover',
+  ensureAuthenticated,
+  is([CAN_RECOVER_USER]),
+  usersController.recover,
+);
 
-    const user = await removeUser.execute({
-      id,
-    });
+usersRouter.patch(
+  '/users/inactive',
+  ensureAuthenticated,
+  is([CAN_RECOVER_USER]),
+  usersController.inactive,
+);
 
-    return response.json(user);
-  },
-); */
-
-/* usersRouter.patch('/users/password', async (request, response) => {
-  const { id, currentPassword, newPassword } = request.body;
-
-  const resetPassword = new ResetUserPasswordService();
-
-  await resetPassword.execute({
-    id,
-    currentPassword,
-    newPassword,
-  });
-
-  return response.send();
-}); */
+usersRouter.patch('/users/password', usersController.resetPassword);

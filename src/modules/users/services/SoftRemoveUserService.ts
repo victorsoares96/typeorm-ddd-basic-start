@@ -9,7 +9,7 @@ interface Request {
 }
 
 @injectable()
-export class RemoveUserService {
+export class SoftRemoveUserService {
   constructor(
     @inject('UsersRepository')
     private usersRepository: UsersRepositoryMethods,
@@ -22,6 +22,6 @@ export class RemoveUserService {
 
     if (!users) throw new AppError(EUserError.NotFound);
 
-    await this.usersRepository.remove(users);
+    await this.usersRepository.softRemove(users);
   }
 }

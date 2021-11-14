@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { injectable, inject } from 'tsyringe';
 import { ILike } from 'typeorm';
 import { User } from '@modules/users/infra/typeorm/entities/User';

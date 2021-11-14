@@ -1,10 +1,11 @@
 import { compare, hash } from 'bcryptjs';
 import { validate } from 'class-validator';
-import { getRepository } from 'typeorm';
+import { injectable, inject } from 'tsyringe';
 
 import { AppError } from '@shared/errors/AppError';
 import { User } from '@modules/users/infra/typeorm/entities/User';
 import { EUserError } from '@shared/utils/enums/e-errors';
+import { UsersRepositoryMethods } from '../repositories/UsersRepositoryMethods';
 
 interface Request {
   id: string;
@@ -12,19 +13,23 @@ interface Request {
   newPassword: string;
 }
 
+@injectable()
 export class ResetUserPasswordService {
+  constructor(
+    @inject('UsersRepository')
+    private usersRepository: UsersRepositoryMethods,
+  ) {}
+
   public async execute({
     id,
     currentPassword,
     newPassword,
   }: Request): Promise<void> {
-    const usersRepository = getRepository(User);
-
     if (!id) throw new AppError(EUserError.IsRequired);
     if (!currentPassword || !newPassword)
       throw new AppError(EUserError.CurrentOrNewPasswordRequired);
 
-    const user = await usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({ where: { id } });
 
     if (!user) throw new AppError(EUserError.NotFound);
 
@@ -42,11 +47,11 @@ export class ResetUserPasswordService {
     const [error] = await validate(updatedUser, {
       stopAtFirstError: true,
     });
-    if (error.constraints) {
+    if (error && error.constraints) {
       const [message] = Object.values(error.constraints);
       throw new AppError(message);
     }
 
-    await usersRepository.save(updatedUser);
+    await this.usersRepository.update([updatedUser]);
   }
 }

@@ -51,7 +51,7 @@ export class SessionService {
     });
 
     user.lastAccess = new Date().toISOString();
-    await this.usersRepository.update(user);
+    await this.usersRepository.update([user]);
 
     // @ts-ignore
     delete user.password;
