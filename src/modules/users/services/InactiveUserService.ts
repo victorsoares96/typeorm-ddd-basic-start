@@ -1,9 +1,9 @@
 import { injectable, inject } from 'tsyringe';
 
 import { AppError } from '@shared/errors/AppError';
-import { EUserError } from '@shared/utils/enums/e-errors';
-import { EUserStatus } from '@shared/utils/enums/e-user';
+import { EUserStatus } from '@modules/users/utils/enums/e-user';
 import { UsersRepositoryMethods } from '../repositories/UsersRepositoryMethods';
+import { EUserError } from '../utils/enums/e-errors';
 
 interface Request {
   ids: string;

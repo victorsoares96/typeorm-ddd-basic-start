@@ -9,7 +9,7 @@ import {
   CAN_UPDATE_USER_AVATAR,
   CAN_VIEW_USER,
   CAN_RECOVER_USER,
-} from '@shared/utils/enums/e-access-permissions';
+} from '@modules/users/utils/enums/e-access-permissions';
 import ensureAuthenticated from '@modules/users/infra/http/middlewares/ensureAuthenticated';
 
 import { is } from '@shared/infra/http/middlewares/ensureAuthorized';

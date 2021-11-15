@@ -1,9 +1,7 @@
 import { FindManyOptions, FindOneOptions } from 'typeorm';
 
 import { CreateUserDTO } from '../dtos/CreateUserDTO';
-import { RecoverUserDTO } from '../dtos/RecoverUserDTO';
 import { UserDTO } from '../dtos/UserDTO';
-import { UpdateUserDTO } from '../dtos/UpdateUserDTO';
 import { User } from '../infra/typeorm/entities/User';
 
 export interface UsersRepositoryMethods {
@@ -15,8 +13,8 @@ export interface UsersRepositoryMethods {
     options?: FindManyOptions<User>,
   ): Promise<User[] | undefined>;
   findByUsername(username: string): Promise<User | undefined>;
-  update(data: UpdateUserDTO[]): Promise<User[]>;
-  recover(data: RecoverUserDTO[]): Promise<User[]>;
+  update(data: UserDTO[]): Promise<User[]>;
+  recover(data: UserDTO[]): Promise<User[]>;
   remove(data: UserDTO[]): Promise<User[]>;
   softRemove(data: UserDTO[]): Promise<User[]>;
 }

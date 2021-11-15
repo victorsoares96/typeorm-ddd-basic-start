@@ -5,10 +5,10 @@ import { injectable, inject } from 'tsyringe';
 
 import authConfig from '@config/auth';
 import { AppError } from '@shared/errors/AppError';
-import { EAuthenticateError } from '@shared/utils/enums/e-errors';
 
 import { User } from '../infra/typeorm/entities/User';
 import { UsersRepositoryMethods } from '../repositories/UsersRepositoryMethods';
+import { ESessionError } from '../utils/enums/e-errors';
 
 export interface Request {
   username: string;
@@ -32,7 +32,7 @@ export class SessionService {
 
     if (!user)
       throw new AppError(
-        EAuthenticateError.IncorrectUsernamePasswordCombination,
+        ESessionError.IncorrectUsernamePasswordCombination,
         401,
       );
 
@@ -40,7 +40,7 @@ export class SessionService {
 
     if (!passwordMatched)
       throw new AppError(
-        EAuthenticateError.IncorrectUsernamePasswordCombination,
+        ESessionError.IncorrectUsernamePasswordCombination,
         401,
       );
 

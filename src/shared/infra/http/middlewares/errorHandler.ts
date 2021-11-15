@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '@shared/errors/AppError';
+import { EGenericError } from '@shared/utils/enums/e-errors';
 
 export default function errorHandler(
   error: Error,
@@ -18,6 +19,6 @@ export default function errorHandler(
 
   return response.status(500).json({
     status: 'error',
-    message: 'Internal server error.',
+    message: EGenericError.InternalError,
   });
 }

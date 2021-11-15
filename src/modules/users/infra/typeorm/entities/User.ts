@@ -13,11 +13,11 @@ import {
 import { hashSync } from 'bcryptjs';
 import { IsEmail, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
 
-import { EUserStatus } from '@shared/utils/enums/e-user';
+import { EUserStatus } from '@modules/users/utils/enums/e-user';
 import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
 import { IsValidPassword } from '@shared/infra/typeorm/decorators/IsValidPassword';
 import { IsUserAlreadyExist } from '@shared/infra/typeorm/decorators/IsUserAlreadyExist';
-import { EUserError } from '@shared/utils/enums/e-errors';
+import { EUserError } from '@modules/users/utils/enums/e-errors';
 
 @Entity('user')
 export class User {

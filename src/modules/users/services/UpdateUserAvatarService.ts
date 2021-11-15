@@ -5,7 +5,7 @@ import fs from 'fs';
 import uploadConfig from '@config/upload';
 import { AppError } from '@shared/errors/AppError';
 import { User } from '@modules/users/infra/typeorm/entities/User';
-import { EUserError } from '@shared/utils/enums/e-errors';
+import { EUserError } from '@modules/users/utils/enums/e-errors';
 import { UsersRepositoryMethods } from '../repositories/UsersRepositoryMethods';
 
 interface Request {

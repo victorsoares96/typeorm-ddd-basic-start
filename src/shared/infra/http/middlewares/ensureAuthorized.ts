@@ -1,13 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { verify } from 'jsonwebtoken';
-import { getRepository } from 'typeorm';
+import { injectable, inject, container } from 'tsyringe';
 
 import authConfig from '@config/auth';
 import { AppError } from '@shared/errors/AppError';
-import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
 import { Permission } from '@modules/permissions/infra/typeorm/entities/Permission';
-import { User } from '@modules/users/infra/typeorm/entities/User';
-import { EAuthenticateError } from '@shared/utils/enums/e-errors';
+import { UsersRepositoryMethods } from '@modules/users/repositories/UsersRepositoryMethods';
+import { AccessProfilesRepositoryMethods } from '@modules/accessProfiles/repositories/AccessProfilesRepositoryMethods';
+import { ESessionError, EUserError } from '@modules/users/utils/enums/e-errors';
+import { EAccessProfileError } from '@modules/accessProfiles/utils/enums/e-errors';
 
 interface TokenPayload {
   iat: number;
@@ -16,32 +17,40 @@ interface TokenPayload {
   name: string;
 }
 
-async function decoder(request: Request): Promise<AccessProfile | null> {
-  const authHeader = request.headers.authorization;
-  if (!authHeader) throw new AppError(EAuthenticateError.MissingJWT, 401);
+@injectable()
+class Decoder {
+  constructor(
+    @inject('UsersRepository')
+    private usersRepository: UsersRepositoryMethods,
+    @inject('AccessProfilesRepository')
+    private accessProfilesRepository: AccessProfilesRepositoryMethods,
+  ) {}
 
-  const usersRepository = getRepository(User);
-  const accessProfilesRepository = getRepository(AccessProfile);
+  public async getPermissions(request: Request): Promise<Permission[]> {
+    const authHeader = request.headers.authorization;
+    if (!authHeader) throw new AppError(ESessionError.MissingJWT, 401);
 
-  const [, token] = authHeader.split(' ');
+    const [, token] = authHeader.split(' ');
 
-  const decoded = verify(token, authConfig.jwt.secret);
-  const { sub: id } = decoded as TokenPayload;
+    const decoded = verify(token, authConfig.jwt.secret);
+    const { sub: id } = decoded as TokenPayload;
 
-  const {
-    accessProfile: { id: accessProfileId },
-  } = await usersRepository.findOne(id, {
-    relations: ['accessProfile'],
-  });
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      relations: ['accessProfile'],
+    });
 
-  const accessProfilePermissions = await accessProfilesRepository.findOne(
-    accessProfileId,
-    {
+    if (!user) throw new AppError(EUserError.NotFound);
+
+    const accessProfile = await this.accessProfilesRepository.findOne({
+      where: { id: user.accessProfile.id },
       relations: ['permissions'],
-    },
-  );
+    });
 
-  return accessProfilePermissions || null;
+    if (!accessProfile) throw new AppError(EAccessProfileError.NotFound);
+
+    return accessProfile.permissions;
+  }
 }
 
 function is(routePermissions: string[]) {
@@ -50,9 +59,8 @@ function is(routePermissions: string[]) {
     response: Response,
     next: NextFunction,
   ) => {
-    return next();
-
-    const { permissions } = await decoder(request);
+    const decoder = container.resolve(Decoder);
+    const permissions = await decoder.getPermissions(request);
 
     const userPermissions = permissions.map(
       (permission: Permission) => permission.name,

@@ -2,9 +2,9 @@
 import { injectable, inject } from 'tsyringe';
 
 import { AppError } from '@shared/errors/AppError';
-import { EAccessProfileStatus } from '@shared/utils/enums/e-access-profile';
-import { EAccessProfileError } from '@shared/utils/enums/e-errors';
+import { EAccessProfileStatus } from '@modules/accessProfiles/utils/enums/e-status';
 import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
+import { EAccessProfileError } from '../utils/enums/e-errors';
 
 interface Request {
   ids: string;

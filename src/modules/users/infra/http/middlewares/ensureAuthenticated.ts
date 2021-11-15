@@ -3,7 +3,7 @@ import { verify } from 'jsonwebtoken';
 
 import authConfig from '@config/auth';
 import { AppError } from '@shared/errors/AppError';
-import { EAuthenticateError } from '@shared/utils/enums/e-errors';
+import { ESessionError } from '@modules/users/utils/enums/e-errors';
 
 interface TokenPayload {
   iat: number;
@@ -19,7 +19,7 @@ export default function ensureAuthenticated(
 ): void {
   const authHeader = request.headers.authorization;
 
-  if (!authHeader) throw new AppError(EAuthenticateError.MissingJWT, 401);
+  if (!authHeader) throw new AppError(ESessionError.MissingJWT, 401);
 
   const [, token] = authHeader.split(' ');
 
@@ -35,6 +35,6 @@ export default function ensureAuthenticated(
 
     return next();
   } catch {
-    throw new AppError(EAuthenticateError.InvalidJWT, 401);
+    throw new AppError(ESessionError.InvalidJWT, 401);
   }
 }

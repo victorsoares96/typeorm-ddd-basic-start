@@ -3,10 +3,7 @@ import { injectable, inject } from 'tsyringe';
 
 import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
 
-import {
-  EAccessProfileError,
-  EPermissionError,
-} from '@shared/utils/enums/e-errors';
+import { EPermissionError } from '@modules/permissions/utils/enums/e-errors';
 import { AppError } from '@shared/errors/AppError';
 import { PermissionsRepositoryMethods } from '@modules/permissions/repositories/PermissionsRepositoryMethods';
 import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
@@ -33,15 +30,9 @@ export class CreateAccessProfileService {
   ) {}
 
   public async execute(accessProfileData: Request): Promise<AccessProfile> {
-    const { name, permissionsId } = accessProfileData;
+    const { permissionsId } = accessProfileData;
 
     if (!permissionsId) throw new AppError(EPermissionError.IdIsRequired);
-
-    const accessProfileWithSameName =
-      await this.accessProfilesRepository.findByName(name);
-
-    if (accessProfileWithSameName)
-      throw new AppError(EAccessProfileError.AccessProfileAlreadyExist);
 
     const ids = permissionsId.split(',');
     const permissions = await this.permissionsRepository.findByIdsOrFail(ids);

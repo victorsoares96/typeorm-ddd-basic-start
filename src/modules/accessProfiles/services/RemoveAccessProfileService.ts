@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 import { AppError } from '@shared/errors/AppError';
-import { EAccessProfileError } from '@shared/utils/enums/e-errors';
 import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
+import { EAccessProfileError } from '../utils/enums/e-errors';
 
 export interface Request {
   ids: string;

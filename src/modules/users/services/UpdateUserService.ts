@@ -3,8 +3,10 @@ import { injectable, inject } from 'tsyringe';
 
 import { AppError } from '@shared/errors/AppError';
 import { User } from '@modules/users/infra/typeorm/entities/User';
-import { EAccessProfileError, EUserError } from '@shared/utils/enums/e-errors';
+import { AccessProfilesRepositoryMethods } from '@modules/accessProfiles/repositories/AccessProfilesRepositoryMethods';
+import { EAccessProfileError } from '@modules/accessProfiles/utils/enums/e-errors';
 import { UsersRepositoryMethods } from '../repositories/UsersRepositoryMethods';
+import { EUserError } from '../utils/enums/e-errors';
 
 export interface Request {
   id: string;
@@ -14,6 +16,7 @@ export interface Request {
   updatedById: string;
   updatedByName: string;
   email?: string;
+  username?: string;
   accessProfileId?: string;
 }
 
@@ -23,40 +26,47 @@ export class UpdateUserService {
     @inject('UsersRepository')
     private usersRepository: UsersRepositoryMethods,
     @inject('AccessProfilesRepository')
-    private accessProfilesRepository: UsersRepositoryMethods,
+    private accessProfilesRepository: AccessProfilesRepositoryMethods,
   ) {}
 
   public async execute(userData: Request): Promise<User> {
     const { id, accessProfileId } = userData;
 
     if (!id) throw new AppError(EUserError.IsRequired);
-    const user = await this.usersRepository.findOne({ where: { id } });
-
-    if (!user) throw new AppError(EUserError.NotFound);
     if (!accessProfileId) throw new AppError(EAccessProfileError.IdIsRequired);
+
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) throw new AppError(EUserError.NotFound);
 
     const accessProfile = await this.accessProfilesRepository.findOne({
       where: { id: accessProfileId },
     });
     if (!accessProfile) throw new AppError(EAccessProfileError.NotFound);
 
-    const updatedUser = {
-      ...user,
-      ...userData,
-      ...accessProfile,
-    };
+    delete userData.accessProfileId;
 
-    const [error] = await validate(updatedUser, {
-      stopAtFirstError: true,
-    });
+    const [error] = await validate(
+      {
+        ...user,
+        ...userData,
+        accessProfile,
+      },
+      {
+        stopAtFirstError: true,
+      },
+    );
     if (error && error.constraints) {
       const [message] = Object.values(error.constraints);
       throw new AppError(message);
     }
 
-    console.log(updatedUser);
-
-    await this.usersRepository.update([updatedUser]);
+    const [updatedUser] = await this.usersRepository.update([
+      {
+        ...user,
+        ...userData,
+        accessProfile,
+      },
+    ]);
 
     return updatedUser;
   }

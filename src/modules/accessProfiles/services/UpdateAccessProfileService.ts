@@ -3,12 +3,10 @@ import { validate } from 'class-validator';
 
 import { AppError } from '@shared/errors/AppError';
 import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
-import {
-  EAccessProfileError,
-  EPermissionError,
-} from '@shared/utils/enums/e-errors';
+import { EPermissionError } from '@modules/permissions/utils/enums/e-errors';
 import { PermissionsRepositoryMethods } from '@modules/permissions/repositories/PermissionsRepositoryMethods';
 import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
+import { EAccessProfileError } from '../utils/enums/e-errors';
 
 interface Request {
   id: string;
@@ -47,9 +45,12 @@ export class UpdateAccessProfileService {
 
     if (!permissions) throw new AppError(EPermissionError.NotFound);
 
+    delete accessProfileData.permissionsId;
+
     const [error] = await validate(
       {
         ...accessProfile,
+        ...accessProfileData,
         permissions,
       },
       {
@@ -60,8 +61,6 @@ export class UpdateAccessProfileService {
       const [message] = Object.values(error.constraints);
       throw new AppError(message);
     }
-
-    delete accessProfileData.permissionsId;
 
     const [updatedAccessProfile] = await this.accessProfilesRepository.update([
       {

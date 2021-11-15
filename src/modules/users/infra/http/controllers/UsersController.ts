@@ -10,7 +10,7 @@ import {
   FindUserService,
   Request as FindRequest,
 } from '@modules/users/services/FindUserService';
-import { EUserStatus } from '@shared/utils/enums/e-user';
+import { EUserStatus } from '@modules/users/utils/enums/e-user';
 import { InactiveUserService } from '@modules/users/services/InactiveUserService';
 import { RecoverUserService } from '@modules/users/services/RecoverUserService';
 import { SoftRemoveUserService } from '@modules/users/services/SoftRemoveUserService';
@@ -129,7 +129,8 @@ export class UsersController {
 
   public async update(request: Request, response: Response): Promise<Response> {
     const { id: userId, name: userName } = request.user;
-    const { id, firstName, lastName, email, accessProfileId } = request.body;
+    const { id, firstName, lastName, email, username, accessProfileId } =
+      request.body;
 
     const updateUser = container.resolve(UpdateUserService);
 
@@ -138,6 +139,7 @@ export class UsersController {
       firstName,
       lastName,
       email,
+      username,
       accessProfileId,
       updatedById: userId,
       updatedByName: userName,

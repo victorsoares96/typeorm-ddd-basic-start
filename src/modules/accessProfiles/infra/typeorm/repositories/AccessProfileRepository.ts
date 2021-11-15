@@ -7,9 +7,7 @@ import {
 
 import { AccessProfilesRepositoryMethods } from '@modules/accessProfiles/repositories/AccessProfilesRepositoryMethods';
 import { CreateAccessProfileDTO } from '@modules/accessProfiles/dtos/CreateAccessProfileDTO';
-import { UpdateAccessProfileDTO } from '@modules/accessProfiles/dtos/UpdateAccessProfileDTO';
-import { RemoveAccessProfileDTO } from '@modules/accessProfiles/dtos/RemoveAccessProfileDTO';
-import { RecoverAccessProfileDTO } from '@modules/accessProfiles/dtos/RecoverAccessProfileDTO';
+import { AccessProfileDTO } from '@modules/accessProfiles/dtos/AccessProfileDTO';
 import { AccessProfile } from '../entities/AccessProfile';
 
 export class AccessProfileRepository
@@ -77,28 +75,22 @@ export class AccessProfileRepository
     return findAccessProfile;
   }
 
-  public async update(
-    data: UpdateAccessProfileDTO[],
-  ): Promise<AccessProfile[]> {
+  public async update(data: AccessProfileDTO[]): Promise<AccessProfile[]> {
     const accessProfiles = await this.ormRepository.save(data);
     return accessProfiles;
   }
 
-  public async recover(
-    data: RecoverAccessProfileDTO[],
-  ): Promise<AccessProfile[]> {
+  public async recover(data: AccessProfileDTO[]): Promise<AccessProfile[]> {
     const accessProfiles = await this.ormRepository.recover(data);
     return accessProfiles;
   }
 
-  public async remove(data: AccessProfile[]): Promise<AccessProfile[]> {
+  public async remove(data: AccessProfileDTO[]): Promise<AccessProfile[]> {
     const accessProfiles = await this.ormRepository.remove(data);
     return accessProfiles;
   }
 
-  public async softRemove(
-    data: RemoveAccessProfileDTO[],
-  ): Promise<AccessProfile[]> {
+  public async softRemove(data: AccessProfileDTO[]): Promise<AccessProfile[]> {
     const accessProfiles = await this.ormRepository.softRemove(data);
     return accessProfiles;
   }

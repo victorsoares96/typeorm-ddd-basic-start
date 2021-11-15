@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 
 import { AppError } from '@shared/errors/AppError';
-import { EAccessProfileError } from '@shared/utils/enums/e-errors';
+import { EAccessProfileError } from '@modules/accessProfiles/utils/enums/e-errors';
 
 import { AccessProfilesRepositoryMethods } from '@modules/accessProfiles/repositories/AccessProfilesRepositoryMethods';
 import { User } from '../infra/typeorm/entities/User';

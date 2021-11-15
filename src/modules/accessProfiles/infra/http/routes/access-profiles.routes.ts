@@ -1,5 +1,8 @@
 import { Router } from 'express';
 
+import { AccessProfilesController } from '@modules/accessProfiles/infra/http/controllers/AccessProfilesController';
+import { is } from '@shared/infra/http/middlewares/ensureAuthorized';
+import ensureAuthenticated from '@modules/users/infra/http/middlewares/ensureAuthenticated';
 import {
   CAN_CREATE_ACCESS_PROFILE,
   CAN_INACTIVE_ACCESS_PROFILE,
@@ -8,10 +11,7 @@ import {
   CAN_SOFT_REMOVE_ACCESS_PROFILE,
   CAN_UPDATE_ACCESS_PROFILE,
   CAN_VIEW_ACCESS_PROFILES,
-} from '@shared/utils/enums/e-access-permissions';
-import { AccessProfilesController } from '@modules/accessProfiles/infra/http/controllers/AccessProfilesController';
-import { is } from '@shared/infra/http/middlewares/ensureAuthorized';
-import ensureAuthenticated from '@modules/users/infra/http/middlewares/ensureAuthenticated';
+} from '@modules/accessProfiles/utils/enums/e-access-permissions';
 
 export const accessProfilesRouter = Router();
 const accessProfilesController = new AccessProfilesController();

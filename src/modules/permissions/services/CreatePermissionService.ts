@@ -1,8 +1,5 @@
 import { injectable, inject } from 'tsyringe';
 
-import { AppError } from '@shared/errors/AppError';
-import { EPermissionError } from '@shared/utils/enums/e-errors';
-
 import { Permission } from '../infra/typeorm/entities/Permission';
 import { PermissionsRepositoryMethods } from '../repositories/PermissionsRepositoryMethods';
 
@@ -18,13 +15,6 @@ export class CreatePermissionService {
   ) {}
 
   public async execute({ name }: Request): Promise<Permission> {
-    const permissionWithSameName = await this.permissionsRepository.findByName(
-      name,
-    );
-
-    if (permissionWithSameName)
-      throw new AppError(EPermissionError.AlreadyExist);
-
     const permission = this.permissionsRepository.create({
       name,
     });

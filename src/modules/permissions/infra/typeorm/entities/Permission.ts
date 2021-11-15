@@ -7,6 +7,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
+import { EPermissionError } from '@modules/permissions/utils/enums/e-errors';
+import { IsPermissionAlreadyExist } from '../decorators/IsPermissionAlreadyExist';
 
 @Entity('permission')
 export class Permission {
@@ -16,6 +18,7 @@ export class Permission {
   @Column({ name: 'name', unique: true })
   @MinLength(3, { message: 'Name is too short.' })
   @MaxLength(35, { message: 'Name is too long.' })
+  @IsPermissionAlreadyExist({ message: EPermissionError.AlreadyExist })
   name: string;
 
   @CreateDateColumn({ name: 'created_at' })

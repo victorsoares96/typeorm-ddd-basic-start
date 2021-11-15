@@ -43,7 +43,7 @@ export class AccessProfilesController {
     response: Response,
   ): Promise<Response> {
     const { ids } = request.body;
-    // const { id: userId, name: userName } = request.user;
+    const { id: userId, name: userName } = request.user;
 
     const inactiveAccessProfile = container.resolve(
       InactiveAccessProfileService,
@@ -51,10 +51,8 @@ export class AccessProfilesController {
 
     await inactiveAccessProfile.execute({
       ids,
-      // updatedById: userId,
-      // updatedByName: userName,
-      updatedById: '',
-      updatedByName: '',
+      updatedById: userId,
+      updatedByName: userName,
     });
 
     return response.send();
@@ -65,7 +63,7 @@ export class AccessProfilesController {
     response: Response,
   ): Promise<Response> {
     const { ids } = request.body;
-    // const { id: userId, name: userName } = request.user;
+    const { id: userId, name: userName } = request.user;
 
     const recoverAccessProfiles = container.resolve(
       RecoverAccessProfileService,
@@ -73,10 +71,8 @@ export class AccessProfilesController {
 
     await recoverAccessProfiles.execute({
       ids,
-      // updatedById: userId,
-      // updatedByName: userName,
-      updatedById: '',
-      updatedByName: '',
+      updatedById: userId,
+      updatedByName: userName,
     });
 
     return response.send();
@@ -112,7 +108,7 @@ export class AccessProfilesController {
   }
 
   public async update(request: Request, response: Response): Promise<Response> {
-    // const { id: userId, name: userName } = request.user;
+    const { id: userId, name: userName } = request.user;
     const { id, name, permissionsId, description } = request.body;
 
     const updateAccessProfile = container.resolve(UpdateAccessProfileService);
@@ -122,10 +118,8 @@ export class AccessProfilesController {
       name,
       permissionsId,
       description,
-      // updatedById: userId,
-      // updatedByName: userName,
-      updatedById: '',
-      updatedByName: '',
+      updatedById: userId,
+      updatedByName: userName,
     });
 
     return response.json(accessProfile);
