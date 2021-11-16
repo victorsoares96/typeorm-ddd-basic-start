@@ -35,7 +35,7 @@ export class CreateAccessProfileService {
     if (!permissionsId) throw new AppError(EPermissionError.IdIsRequired);
 
     const ids = permissionsId.split(',');
-    const permissions = await this.permissionsRepository.findByIdsOrFail(ids);
+    const permissions = await this.permissionsRepository.findByIds(ids);
 
     if (!permissions) throw new AppError(EPermissionError.NotFound);
 

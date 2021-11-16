@@ -39,7 +39,7 @@ export class UpdateAccessProfileService {
     if (!accessProfile) throw new AppError(EAccessProfileError.NotFound);
 
     const permissionsArray = permissionsId.split(',');
-    const permissions = await this.permissionsRepository.findByIdsOrFail(
+    const permissions = await this.permissionsRepository.findByIds(
       permissionsArray,
     );
 

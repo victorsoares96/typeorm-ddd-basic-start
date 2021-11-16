@@ -1,20 +1,18 @@
-import { FindManyOptions, getRepository, Repository } from 'typeorm';
 import { validate } from 'class-validator';
 
 import { CreatePermissionDTO } from '@modules/permissions/dtos/CreatePermissionDTO';
 import { PermissionsRepositoryMethods } from '@modules/permissions/repositories/PermissionsRepositoryMethods';
 import { AppError } from '@shared/errors/AppError';
-import { Permission } from '../entities/Permission';
+import { Permission } from '@modules/permissions/infra/typeorm/entities/Permission';
+import { FindManyOptions } from 'typeorm';
 
-export class PermissionRepository implements PermissionsRepositoryMethods {
-  private ormRepository: Repository<Permission>;
-
-  constructor() {
-    this.ormRepository = getRepository(Permission);
-  }
+export class FakePermissionsRepository implements PermissionsRepositoryMethods {
+  private permissions: Permission[] = [];
 
   public async create({ name }: CreatePermissionDTO): Promise<Permission> {
-    const permission = this.ormRepository.create({ name });
+    const permission = new Permission();
+
+    Object.assign(permission, { id: '1', name });
 
     const [error] = await validate(permission, {
       stopAtFirstError: true,
@@ -25,33 +23,37 @@ export class PermissionRepository implements PermissionsRepositoryMethods {
       throw new AppError(message);
     }
 
-    await this.ormRepository.save(permission);
+    this.permissions.push(permission);
 
     return permission;
   }
 
   public async findAndCount(
-    options?: FindManyOptions<Permission>,
+    _options?: FindManyOptions<Permission>,
   ): Promise<[Permission[], number]> {
-    const permissions = await this.ormRepository.findAndCount(options);
+    const findPermissionAndCount = this.permissions.filter(
+      permission => permission,
+    );
 
-    return permissions;
+    return [findPermissionAndCount, this.permissions.length];
   }
 
   public async findByName(name: string): Promise<Permission | undefined> {
-    const findPermission = await this.ormRepository.findOne({
-      where: { name },
-    });
+    const findPermission = this.permissions.find(
+      permission => permission.name === name,
+    );
 
     return findPermission;
   }
 
   public async findByIds(
     ids: any[],
-    options?: FindManyOptions<Permission>,
+    _options?: FindManyOptions<Permission>,
   ): Promise<Permission[] | undefined> {
-    const findPermissions = await this.ormRepository.findByIds(ids, options);
-    if (findPermissions.length === ids.length) return findPermissions;
-    return undefined;
+    const findPermissions = this.permissions.filter(permission =>
+      ids.includes(permission.id),
+    );
+
+    return findPermissions;
   }
 }

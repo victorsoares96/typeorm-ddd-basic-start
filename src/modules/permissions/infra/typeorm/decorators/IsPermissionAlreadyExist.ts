@@ -4,21 +4,22 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { getRepository } from 'typeorm';
-import { Permission } from '../entities/Permission';
+import { container } from 'tsyringe';
+import { FindPermissionService } from '@modules/permissions/services/FindPermissionService';
 
 @ValidatorConstraint({ async: true })
 export class IsPermissionAlreadyExistConstraint
   implements ValidatorConstraintInterface
 {
   validate(name: string) {
-    const permissionsRepository = getRepository(Permission);
-    return permissionsRepository
-      .findOne({ where: { name } })
-      .then(permission => {
-        if (permission) return false;
-        return true;
-      });
+    const findPermission = container.resolve(FindPermissionService);
+
+    return findPermission.execute({ name }).then(([permissions]) => {
+      if (permissions.length > 0) {
+        return false;
+      }
+      return true;
+    });
   }
 }
 
