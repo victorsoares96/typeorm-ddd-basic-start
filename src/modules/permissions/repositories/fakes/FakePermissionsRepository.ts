@@ -28,22 +28,28 @@ export class FakePermissionsRepository implements PermissionsRepositoryMethods {
     return permission;
   }
 
-  public async findAndCount(
+  public async findByName(
+    name: string,
     _options?: FindManyOptions<Permission>,
   ): Promise<[Permission[], number]> {
-    const findPermissionAndCount = this.permissions.filter(
-      permission => permission,
-    );
+    let findPermissions: Permission[] = [];
 
-    return [findPermissionAndCount, this.permissions.length];
-  }
+    const containLikeOperator =
+      name[0] === '%' && name[name.length - 1] === '%';
 
-  public async findByName(name: string): Promise<Permission | undefined> {
-    const findPermission = this.permissions.find(
-      permission => permission.name === name,
-    );
+    const removeLikeOperator = (str: string) => str.replace(/%/g, '');
 
-    return findPermission;
+    if (containLikeOperator) {
+      findPermissions = this.permissions.filter(permission =>
+        permission.name.includes(removeLikeOperator(name)),
+      );
+    } else {
+      findPermissions = this.permissions.filter(
+        permission => permission.name === removeLikeOperator(name),
+      );
+    }
+
+    return [findPermissions, findPermissions.length];
   }
 
   public async findByIds(

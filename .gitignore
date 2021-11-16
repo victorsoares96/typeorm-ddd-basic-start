@@ -1,4 +1,5 @@
 node_modules/
-coverage/
+coverage/*
+!coverage/.gitkeep
 tmp/*
 !tmp/.gitkeep

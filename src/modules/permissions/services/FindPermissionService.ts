@@ -1,6 +1,5 @@
 import { injectable, inject } from 'tsyringe';
 
-import { ILike } from 'typeorm';
 import { Permission } from '../infra/typeorm/entities/Permission';
 import { PermissionsRepositoryMethods } from '../repositories/PermissionsRepositoryMethods';
 
@@ -18,13 +17,7 @@ export class FindPermissionService {
   public async execute({
     name = '',
   }: Request): Promise<[Permission[], number]> {
-    const permissions = await this.permissionsRepository.findAndCount({
-      where: [
-        {
-          name: ILike(`%${name}%`),
-        },
-      ],
-    });
+    const permissions = await this.permissionsRepository.findByName(name);
 
     return permissions;
   }

@@ -18,6 +18,7 @@ export class IsPermissionAlreadyExistConstraint
       if (permissions.length > 0) {
         return false;
       }
+
       return true;
     });
   }
