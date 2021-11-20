@@ -12,11 +12,10 @@ export interface Request {
   name: string;
   description?: string;
   status?: number;
-  createdById?: string;
-  createdByName?: string;
-  updatedById?: string;
-  updatedByName?: string;
-  deletionDate?: string;
+  createdById: string;
+  createdByName: string;
+  updatedById: string;
+  updatedByName: string;
   permissionsId: string;
 }
 
