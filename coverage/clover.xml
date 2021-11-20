@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1637088794454" clover="3.2.0">
-  <project timestamp="1637088794455" name="All files">
+<coverage generated="1637436013561" clover="3.2.0">
+  <project timestamp="1637436013563" name="All files">
     <metrics statements="543" coveredstatements="510" conditionals="33" coveredconditionals="33" methods="28" coveredmethods="14" elements="604" coveredelements="557" complexity="0" loc="543" ncloc="543" packages="12" files="16" classes="16"/>
     <package name="modules.accessProfiles.infra.typeorm.decorators">
       <metrics statements="37" coveredstatements="29" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="1"/>

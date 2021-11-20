@@ -4,13 +4,14 @@ import { CreatePermissionService } from './CreatePermissionService';
 import { FakePermissionsRepository } from '../repositories/fakes/FakePermissionsRepository';
 
 describe('CreatePermission', () => {
-  beforeEach(() => {
-    container.clearInstances();
-
+  beforeAll(() => {
     container.registerSingleton(
       'PermissionsRepository',
       FakePermissionsRepository,
     );
+  });
+  beforeEach(() => {
+    container.clearInstances();
   });
 
   it('should be able to create a new permission', async () => {

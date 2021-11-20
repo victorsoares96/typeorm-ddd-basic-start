@@ -5,15 +5,13 @@ import {
   CreateAccessProfileService,
   Request as CreateRequest,
 } from '@modules/accessProfiles/services/CreateAccessProfileService';
-import {
-  FindAccessProfileService,
-  Request as FindRequest,
-} from '@modules/accessProfiles/services/FindAccessProfileService';
+import { FindAccessProfileService } from '@modules/accessProfiles/services/FindAccessProfileService';
 import { InactiveAccessProfileService } from '@modules/accessProfiles/services/InactiveAccessProfileService';
 import { RecoverAccessProfileService } from '@modules/accessProfiles/services/RecoverAccessProfileService';
 import { RemoveAccessProfileService } from '@modules/accessProfiles/services/RemoveAccessProfileService';
 import { SoftRemoveAccessProfileService } from '@modules/accessProfiles/services/SoftRemoveAccessProfileService';
 import { UpdateAccessProfileService } from '@modules/accessProfiles/services/UpdateAccessProfileService';
+import { FindManyAccessProfileDTO } from '@modules/accessProfiles/dtos/FindManyAccessProfileDTO';
 
 export class AccessProfilesController {
   public async create(request: Request, response: Response): Promise<Response> {
@@ -30,7 +28,7 @@ export class AccessProfilesController {
   }
 
   public async index(request: Request, response: Response): Promise<Response> {
-    const filters = request.body as FindRequest;
+    const filters = request.body as FindManyAccessProfileDTO;
 
     const findAccessProfiles = container.resolve(FindAccessProfileService);
     const permissions = await findAccessProfiles.execute(filters);

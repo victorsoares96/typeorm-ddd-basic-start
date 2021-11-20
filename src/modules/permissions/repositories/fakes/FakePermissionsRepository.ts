@@ -4,7 +4,6 @@ import { CreatePermissionDTO } from '@modules/permissions/dtos/CreatePermissionD
 import { PermissionsRepositoryMethods } from '@modules/permissions/repositories/PermissionsRepositoryMethods';
 import { AppError } from '@shared/errors/AppError';
 import { Permission } from '@modules/permissions/infra/typeorm/entities/Permission';
-import { FindManyOptions } from 'typeorm';
 
 export class FakePermissionsRepository implements PermissionsRepositoryMethods {
   private permissions: Permission[] = [];
@@ -28,10 +27,7 @@ export class FakePermissionsRepository implements PermissionsRepositoryMethods {
     return permission;
   }
 
-  public async findByName(
-    name: string,
-    _options?: FindManyOptions<Permission>,
-  ): Promise<[Permission[], number]> {
+  public async findByName(name: string): Promise<[Permission[], number]> {
     let findPermissions: Permission[] = [];
 
     const containLikeOperator =
@@ -52,10 +48,7 @@ export class FakePermissionsRepository implements PermissionsRepositoryMethods {
     return [findPermissions, findPermissions.length];
   }
 
-  public async findByIds(
-    ids: any[],
-    _options?: FindManyOptions<Permission>,
-  ): Promise<Permission[] | undefined> {
+  public async findByIds(ids: string[]): Promise<Permission[] | undefined> {
     const findPermissions = this.permissions.filter(permission =>
       ids.includes(permission.id),
     );

@@ -1,13 +1,10 @@
-import {
-  FindManyOptions,
-  FindOneOptions,
-  getRepository,
-  Repository,
-} from 'typeorm';
+import { getRepository, ILike, Repository } from 'typeorm';
 
 import { AccessProfilesRepositoryMethods } from '@modules/accessProfiles/repositories/AccessProfilesRepositoryMethods';
 import { CreateAccessProfileDTO } from '@modules/accessProfiles/dtos/CreateAccessProfileDTO';
 import { AccessProfileDTO } from '@modules/accessProfiles/dtos/AccessProfileDTO';
+import { FindManyAccessProfileDTO } from '@modules/accessProfiles/dtos/FindManyAccessProfileDTO';
+import { FindOneAccessProfileDTO } from '@modules/accessProfiles/dtos/FindOneAccessProfileDTO';
 import { AccessProfile } from '../entities/AccessProfile';
 
 export class AccessProfileRepository
@@ -43,36 +40,80 @@ export class AccessProfileRepository
   }
 
   public async findOne(
-    options?: FindOneOptions<AccessProfile>,
+    filters: FindOneAccessProfileDTO,
   ): Promise<AccessProfile | undefined> {
-    const findAccessProfile = await this.ormRepository.findOne(options);
+    const { name = '', description = '', isDeleted = false } = filters;
 
-    return findAccessProfile;
+    const onlyValueFilters = Object.entries(filters).filter(
+      ([, value]) => value,
+    );
+    const query = Object.fromEntries(
+      onlyValueFilters,
+    ) as FindOneAccessProfileDTO;
+
+    delete query.isDeleted;
+
+    const accessProfile = await this.ormRepository.findOne({
+      where: [
+        {
+          ...query,
+          name: ILike(`%${name}%`),
+          description: ILike(`%${description}%`),
+        },
+      ],
+      loadEagerRelations: true,
+      withDeleted: isDeleted,
+    });
+
+    return accessProfile;
   }
 
-  public async findAndCount(
-    options?: FindManyOptions<AccessProfile>,
+  public async findMany(
+    filters: FindManyAccessProfileDTO,
   ): Promise<[AccessProfile[], number]> {
-    const accessProfiles = await this.ormRepository.findAndCount(options);
+    const {
+      name = '',
+      description = '',
+      isDeleted = false,
+      offset = 0,
+      isAscending = false,
+      limit = 20,
+    } = filters;
+
+    const onlyValueFilters = Object.entries(filters).filter(
+      ([, value]) => value,
+    );
+    const query = Object.fromEntries(
+      onlyValueFilters,
+    ) as FindManyAccessProfileDTO;
+
+    delete query.isDeleted;
+    delete query.offset;
+    delete query.isAscending;
+    delete query.limit;
+
+    const accessProfiles = await this.ormRepository.findAndCount({
+      where: [
+        {
+          ...query,
+          name: ILike(`%${name}%`),
+          description: ILike(`%${description}%`),
+        },
+      ],
+      loadEagerRelations: true,
+      withDeleted: isDeleted,
+      take: limit,
+      skip: offset,
+      order: { name: isAscending ? 'ASC' : 'DESC' },
+    });
 
     return accessProfiles;
   }
 
-  public async findByIds(
-    ids: any[],
-    options?: FindManyOptions<AccessProfile>,
-  ): Promise<AccessProfile[] | undefined> {
-    const findAccessProfiles = await this.ormRepository.findByIds(ids, options);
+  public async findByIds(ids: string[]): Promise<AccessProfile[] | undefined> {
+    const findAccessProfiles = await this.ormRepository.findByIds(ids);
     if (findAccessProfiles.length === ids.length) return findAccessProfiles;
     return undefined;
-  }
-
-  public async findByName(name: string): Promise<AccessProfile | undefined> {
-    const findAccessProfile = await this.ormRepository.findOne({
-      where: { name },
-    });
-
-    return findAccessProfile;
   }
 
   public async update(data: AccessProfileDTO[]): Promise<AccessProfile[]> {

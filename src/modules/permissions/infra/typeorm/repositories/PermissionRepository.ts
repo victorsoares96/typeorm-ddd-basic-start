@@ -1,4 +1,4 @@
-import { FindManyOptions, getRepository, ILike, Repository } from 'typeorm';
+import { getRepository, ILike, Repository } from 'typeorm';
 import { validate } from 'class-validator';
 
 import { CreatePermissionDTO } from '@modules/permissions/dtos/CreatePermissionDTO';
@@ -30,23 +30,16 @@ export class PermissionRepository implements PermissionsRepositoryMethods {
     return permission;
   }
 
-  public async findByName(
-    name: string,
-    options?: FindManyOptions<Permission>,
-  ): Promise<[Permission[], number]> {
+  public async findByName(name: string): Promise<[Permission[], number]> {
     const findPermissions = await this.ormRepository.findAndCount({
       where: { name: ILike(`${name}`) },
-      ...options,
     });
 
     return findPermissions;
   }
 
-  public async findByIds(
-    ids: any[],
-    options?: FindManyOptions<Permission>,
-  ): Promise<Permission[] | undefined> {
-    const findPermissions = await this.ormRepository.findByIds(ids, options);
+  public async findByIds(ids: string[]): Promise<Permission[] | undefined> {
+    const findPermissions = await this.ormRepository.findByIds(ids);
     if (findPermissions.length === ids.length) return findPermissions;
     return undefined;
   }
