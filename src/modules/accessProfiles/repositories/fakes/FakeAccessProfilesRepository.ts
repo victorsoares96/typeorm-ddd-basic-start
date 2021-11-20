@@ -45,9 +45,10 @@ export class FakeAccessProfileRepository
     return new Promise(resolve => {
       const accessProfile = this.accessProfiles.find(item => {
         for (const filter in filters) {
-          // @ts-ignore
           if (
+            // @ts-ignore
             item[filter] === undefined ||
+            // @ts-ignore
             !item[filter].includes(filters[filter])
           )
             return false;
@@ -65,8 +66,12 @@ export class FakeAccessProfileRepository
     return new Promise(resolve => {
       const accessProfiles = this.accessProfiles.filter(item => {
         for (const filter in filters) {
-          // @ts-ignore
-          if (item[filter] === undefined || item[filter] !== filters[filter])
+          if (
+            // @ts-ignore
+            item[filter] === undefined ||
+            // @ts-ignore
+            !item[filter].includes(filters[filter])
+          )
             return false;
         }
         return true;

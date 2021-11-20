@@ -57,7 +57,7 @@ export class AccessProfileRepository
       where: [
         {
           ...query,
-          name: ILike(`%${name}%`),
+          name: ILike(name),
           description: ILike(`%${description}%`),
         },
       ],
