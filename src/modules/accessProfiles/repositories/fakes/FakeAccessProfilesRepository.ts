@@ -29,6 +29,7 @@ export class FakeAccessProfileRepository
       name,
       permissions,
       description,
+      status: EAccessProfileStatus.Active,
       createdById,
       createdByName,
       updatedById,
@@ -83,11 +84,11 @@ export class FakeAccessProfileRepository
   }
 
   public async findByIds(ids: string[]): Promise<AccessProfile[] | undefined> {
-    const findPermissions = this.accessProfiles.filter(accessProfile =>
-      ids.includes(accessProfile.id),
+    const findAccessProfiles = ids.map(id =>
+      this.accessProfiles.find(accessProfile => accessProfile.id === id),
     );
-
-    return findPermissions;
+    if (findAccessProfiles.some(el => !el)) return undefined;
+    return findAccessProfiles as AccessProfile[];
   }
 
   public async update(data: AccessProfileDTO[]): Promise<AccessProfile[]> {

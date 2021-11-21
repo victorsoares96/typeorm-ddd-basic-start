@@ -1,6 +1,7 @@
 export enum EAccessProfileError {
   IsRequired = 'The access profile is required.',
   AlreadyExist = 'This access profile is already exists.',
+  AlreadyInactive = 'This access profile is already inactive.',
   NameTooShort = 'The name must be at least 3 characters long.',
   NameTooLong = 'The name must be at most 35 characters long.',
   NotFound = 'No access profile was found.',

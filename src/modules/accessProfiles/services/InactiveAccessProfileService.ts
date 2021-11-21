@@ -36,7 +36,7 @@ export class InactiveAccessProfileService {
         accessProfile => accessProfile.status === EAccessProfileStatus.Inactive,
       )
     )
-      throw new AppError(EAccessProfileError.NotDisabled);
+      throw new AppError(EAccessProfileError.AlreadyInactive);
 
     accessProfiles.forEach(accessProfile => {
       accessProfile.status = EAccessProfileStatus.Inactive;
