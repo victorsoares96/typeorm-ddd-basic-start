@@ -5,7 +5,7 @@ import {
   CreateAccessProfileService,
   Request as CreateRequest,
 } from '@modules/accessProfiles/services/CreateAccessProfileService';
-import { FindAccessProfileService } from '@modules/accessProfiles/services/FindAccessProfileService';
+import { FindManyAccessProfileService } from '@modules/accessProfiles/services/FindManyAccessProfileService';
 import { InactiveAccessProfileService } from '@modules/accessProfiles/services/InactiveAccessProfileService';
 import { RecoverAccessProfileService } from '@modules/accessProfiles/services/RecoverAccessProfileService';
 import { RemoveAccessProfileService } from '@modules/accessProfiles/services/RemoveAccessProfileService';
@@ -15,13 +15,25 @@ import { FindManyAccessProfileDTO } from '@modules/accessProfiles/dtos/FindManyA
 
 export class AccessProfilesController {
   public async create(request: Request, response: Response): Promise<Response> {
-    const { name, permissionsId, description } = request.body as CreateRequest;
+    const {
+      name,
+      permissionsId,
+      description,
+      createdById,
+      createdByName,
+      updatedById,
+      updatedByName,
+    } = request.body as CreateRequest;
 
     const createAccessProfile = container.resolve(CreateAccessProfileService);
     const accessProfile = await createAccessProfile.execute({
       name,
       permissionsId,
       description,
+      createdById,
+      createdByName,
+      updatedById,
+      updatedByName,
     });
 
     return response.json(accessProfile);
@@ -30,7 +42,7 @@ export class AccessProfilesController {
   public async index(request: Request, response: Response): Promise<Response> {
     const filters = request.body as FindManyAccessProfileDTO;
 
-    const findAccessProfiles = container.resolve(FindAccessProfileService);
+    const findAccessProfiles = container.resolve(FindManyAccessProfileService);
     const permissions = await findAccessProfiles.execute(filters);
 
     return response.json(permissions);

@@ -1,24 +1,23 @@
+import { FindOneAccessProfileService } from '@modules/accessProfiles/services/FindOneAccessProfileService';
 import {
   registerDecorator,
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { getRepository } from 'typeorm';
-import { AccessProfile } from '../entities/AccessProfile';
+import { container } from 'tsyringe';
 
 @ValidatorConstraint({ async: true })
 export class IsAccessProfileAlreadyExistConstraint
   implements ValidatorConstraintInterface
 {
   validate(name: string) {
-    const accessProfilesRepository = getRepository(AccessProfile);
-    return accessProfilesRepository
-      .findOne({ where: { name } })
-      .then(accessProfile => {
-        if (accessProfile) return false;
-        return true;
-      });
+    const findAccessProfile = container.resolve(FindOneAccessProfileService);
+    return findAccessProfile.execute({ name }).then(accessProfile => {
+      console.log(accessProfile);
+      if (accessProfile) return false;
+      return true;
+    });
   }
 }
 

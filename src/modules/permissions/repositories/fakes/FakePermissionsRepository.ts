@@ -49,10 +49,10 @@ export class FakePermissionsRepository implements PermissionsRepositoryMethods {
   }
 
   public async findByIds(ids: string[]): Promise<Permission[] | undefined> {
-    const findPermissions = this.permissions.filter(permission =>
-      ids.includes(permission.id),
+    const findPermissions = ids.map(id =>
+      this.permissions.find(permission => permission.id === id),
     );
-
-    return findPermissions;
+    if (findPermissions.some(el => !el)) return undefined;
+    return findPermissions as Permission[];
   }
 }

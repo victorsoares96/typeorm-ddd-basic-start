@@ -6,6 +6,8 @@ import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/Ac
 import { FindOneAccessProfileDTO } from '@modules/accessProfiles/dtos/FindOneAccessProfileDTO';
 import { AccessProfileDTO } from '@modules/accessProfiles/dtos/AccessProfileDTO';
 import { EAccessProfileStatus } from '@modules/accessProfiles/utils/enums/e-status';
+import { validate } from 'class-validator';
+import { AppError } from '@shared/errors/AppError';
 
 export class FakeAccessProfileRepository
   implements AccessProfilesRepositoryMethods
@@ -33,6 +35,15 @@ export class FakeAccessProfileRepository
       updatedById,
       updatedByName,
     });
+
+    const [error] = await validate(accessProfile, {
+      stopAtFirstError: true,
+    });
+
+    if (error && error.constraints) {
+      const [message] = Object.values(error.constraints);
+      throw new AppError(message);
+    }
 
     this.accessProfiles.push(accessProfile);
 

@@ -3,8 +3,18 @@ import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/Ac
 import { FindManyAccessProfileDTO } from '@modules/accessProfiles/dtos/FindManyAccessProfileDTO';
 import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
 
+/**
+ * [x] Recebimento das informações
+ * [x] Tratativa de erros/excessões
+ * [x] Acesso ao repositório
+ */
+
+/**
+ * Dependency Inversion (SOLID)
+ */
+
 @injectable()
-export class FindAccessProfileService {
+export class FindManyAccessProfileService {
   constructor(
     @inject('AccessProfilesRepository')
     private accessProfilesRepository: AccessProfilesRepositoryMethods,

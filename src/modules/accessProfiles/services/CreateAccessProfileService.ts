@@ -8,6 +8,16 @@ import { AppError } from '@shared/errors/AppError';
 import { PermissionsRepositoryMethods } from '@modules/permissions/repositories/PermissionsRepositoryMethods';
 import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
 
+/**
+ * [x] Recebimento das informações
+ * [x] Tratativa de erros/excessões
+ * [x] Acesso ao repositório
+ */
+
+/**
+ * Dependency Inversion (SOLID)
+ */
+
 export interface Request {
   name: string;
   description?: string;
