@@ -25,7 +25,11 @@ export class FindOneAccessProfileService {
   public async execute(
     filters: FindManyAccessProfileDTO,
   ): Promise<AccessProfile | undefined> {
-    if (!filters) throw new AppError(EGenericError.MissingFilters);
+    if (
+      Object.keys(filters).length === 0 ||
+      Object.values(filters).some(value => !value)
+    )
+      throw new AppError(EGenericError.MissingFilters);
     const accessProfiles = await this.accessProfilesRepository.findOne(filters);
 
     return accessProfiles;

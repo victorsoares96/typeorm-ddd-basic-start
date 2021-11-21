@@ -42,7 +42,7 @@ export class AccessProfileRepository
   public async findOne(
     filters: FindOneAccessProfileDTO,
   ): Promise<AccessProfile | undefined> {
-    const { name = '', description = '', isDeleted = false } = filters;
+    const { isDeleted = false } = filters;
 
     const onlyValueFilters = Object.entries(filters).filter(
       ([, value]) => value,
@@ -54,13 +54,7 @@ export class AccessProfileRepository
     delete query.isDeleted;
 
     const accessProfile = await this.ormRepository.findOne({
-      where: [
-        {
-          ...query,
-          name: ILike(name),
-          description: ILike(`%${description}%`),
-        },
-      ],
+      where: [{ ...query }],
       loadEagerRelations: true,
       withDeleted: isDeleted,
     });

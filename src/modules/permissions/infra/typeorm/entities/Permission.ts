@@ -1,4 +1,3 @@
-import { MaxLength, MinLength } from 'class-validator';
 import {
   Column,
   CreateDateColumn,
@@ -7,8 +6,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
-import { EPermissionError } from '@modules/permissions/utils/enums/e-errors';
-import { IsPermissionAlreadyExist } from '../decorators/IsPermissionAlreadyExist';
 
 @Entity('permission')
 export class Permission {
@@ -16,9 +13,6 @@ export class Permission {
   id: string;
 
   @Column({ name: 'name', unique: true })
-  @MinLength(3, { message: 'Name is too short.' })
-  @MaxLength(35, { message: 'Name is too long.' })
-  @IsPermissionAlreadyExist({ message: EPermissionError.AlreadyExist })
   name: string;
 
   @CreateDateColumn({ name: 'created_at' })

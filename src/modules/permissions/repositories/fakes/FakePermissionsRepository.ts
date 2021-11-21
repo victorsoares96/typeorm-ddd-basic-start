@@ -1,9 +1,13 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { validate } from 'class-validator';
 
 import { CreatePermissionDTO } from '@modules/permissions/dtos/CreatePermissionDTO';
 import { PermissionsRepositoryMethods } from '@modules/permissions/repositories/PermissionsRepositoryMethods';
 import { AppError } from '@shared/errors/AppError';
 import { Permission } from '@modules/permissions/infra/typeorm/entities/Permission';
+import { FindOnePermissionDTO } from '@modules/permissions/dtos/FindOnePermissionDTO';
+import { FindManyPermissionDTO } from '@modules/permissions/dtos/FindManyPermissionDTO';
 
 export class FakePermissionsRepository implements PermissionsRepositoryMethods {
   private permissions: Permission[] = [];
@@ -27,25 +31,46 @@ export class FakePermissionsRepository implements PermissionsRepositoryMethods {
     return permission;
   }
 
-  public async findByName(name: string): Promise<[Permission[], number]> {
-    let findPermissions: Permission[] = [];
+  public findOne(
+    filters: FindOnePermissionDTO,
+  ): Promise<Permission | undefined> {
+    return new Promise(resolve => {
+      const permission = this.permissions.find(item => {
+        for (const filter in filters) {
+          if (
+            // @ts-ignore
+            item[filter] === undefined ||
+            // @ts-ignore
+            !item[filter].includes(filters[filter])
+          )
+            return false;
+        }
+        return true;
+      });
 
-    const containLikeOperator =
-      name[0] === '%' && name[name.length - 1] === '%';
+      resolve(permission);
+    });
+  }
 
-    const removeLikeOperator = (str: string) => str.replace(/%/g, '');
+  public findMany(
+    filters: FindManyPermissionDTO,
+  ): Promise<[Permission[], number]> {
+    return new Promise(resolve => {
+      const permissions = this.permissions.filter(item => {
+        for (const filter in filters) {
+          if (
+            // @ts-ignore
+            item[filter] === undefined ||
+            // @ts-ignore
+            !item[filter].includes(filters[filter])
+          )
+            return false;
+        }
+        return true;
+      });
 
-    if (containLikeOperator) {
-      findPermissions = this.permissions.filter(permission =>
-        permission.name.includes(removeLikeOperator(name)),
-      );
-    } else {
-      findPermissions = this.permissions.filter(
-        permission => permission.name === removeLikeOperator(name),
-      );
-    }
-
-    return [findPermissions, findPermissions.length];
+      resolve([permissions, permissions.length]);
+    });
   }
 
   public async findByIds(ids: string[]): Promise<Permission[] | undefined> {

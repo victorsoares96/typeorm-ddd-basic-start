@@ -4,6 +4,8 @@ import { validate } from 'class-validator';
 import { CreatePermissionDTO } from '@modules/permissions/dtos/CreatePermissionDTO';
 import { PermissionsRepositoryMethods } from '@modules/permissions/repositories/PermissionsRepositoryMethods';
 import { AppError } from '@shared/errors/AppError';
+import { FindOnePermissionDTO } from '@modules/permissions/dtos/FindOnePermissionDTO';
+import { FindManyPermissionDTO } from '@modules/permissions/dtos/FindManyPermissionDTO';
 import { Permission } from '../entities/Permission';
 
 export class PermissionRepository implements PermissionsRepositoryMethods {
@@ -30,12 +32,41 @@ export class PermissionRepository implements PermissionsRepositoryMethods {
     return permission;
   }
 
-  public async findByName(name: string): Promise<[Permission[], number]> {
-    const findPermissions = await this.ormRepository.findAndCount({
-      where: { name: ILike(`${name}`) },
+  public async findOne(
+    filters: FindOnePermissionDTO,
+  ): Promise<Permission | undefined> {
+    const onlyValueFilters = Object.entries(filters).filter(
+      ([, value]) => value,
+    );
+    const query = Object.fromEntries(onlyValueFilters) as FindOnePermissionDTO;
+
+    const permission = await this.ormRepository.findOne({
+      where: [{ ...query }],
     });
 
-    return findPermissions;
+    return permission;
+  }
+
+  public async findMany(
+    filters: FindManyPermissionDTO,
+  ): Promise<[Permission[], number]> {
+    const { name = '' } = filters;
+
+    const onlyValueFilters = Object.entries(filters).filter(
+      ([, value]) => value,
+    );
+    const query = Object.fromEntries(onlyValueFilters) as FindManyPermissionDTO;
+
+    const accessProfiles = await this.ormRepository.findAndCount({
+      where: [
+        {
+          ...query,
+          name: ILike(`%${name}%`),
+        },
+      ],
+    });
+
+    return accessProfiles;
   }
 
   public async findByIds(ids: string[]): Promise<Permission[] | undefined> {

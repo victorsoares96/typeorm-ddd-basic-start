@@ -1,4 +1,3 @@
-import { MaxLength, MinLength } from 'class-validator';
 import {
   Column,
   CreateDateColumn,
@@ -13,8 +12,6 @@ import {
 import { EAccessProfileStatus } from '@modules/accessProfiles/utils/enums/e-status';
 import { Permission } from '@modules/permissions/infra/typeorm/entities/Permission';
 import { User } from '@modules/users/infra/typeorm/entities/User';
-import { EAccessProfileError } from '@modules/accessProfiles/utils/enums/e-errors';
-import { IsAccessProfileAlreadyExist } from '../decorators/IsAccessProfileAlreadyExist';
 
 @Entity('access_profile')
 export class AccessProfile {
@@ -22,9 +19,6 @@ export class AccessProfile {
   id: string;
 
   @Column({ name: 'name', unique: true })
-  @MinLength(3, { message: 'Name is too short.' })
-  @MaxLength(35, { message: 'Name is too long.' })
-  @IsAccessProfileAlreadyExist({ message: EAccessProfileError.AlreadyExist })
   name: string;
 
   @Column({ name: 'description', nullable: true, default: null })

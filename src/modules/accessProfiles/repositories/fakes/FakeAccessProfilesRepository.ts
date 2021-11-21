@@ -6,8 +6,7 @@ import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/Ac
 import { FindOneAccessProfileDTO } from '@modules/accessProfiles/dtos/FindOneAccessProfileDTO';
 import { AccessProfileDTO } from '@modules/accessProfiles/dtos/AccessProfileDTO';
 import { EAccessProfileStatus } from '@modules/accessProfiles/utils/enums/e-status';
-import { validate } from 'class-validator';
-import { AppError } from '@shared/errors/AppError';
+import { FindManyAccessProfileDTO } from '@modules/accessProfiles/dtos/FindManyAccessProfileDTO';
 
 export class FakeAccessProfileRepository
   implements AccessProfilesRepositoryMethods
@@ -36,15 +35,6 @@ export class FakeAccessProfileRepository
       updatedByName,
     });
 
-    const [error] = await validate(accessProfile, {
-      stopAtFirstError: true,
-    });
-
-    if (error && error.constraints) {
-      const [message] = Object.values(error.constraints);
-      throw new AppError(message);
-    }
-
     this.accessProfiles.push(accessProfile);
 
     return accessProfile;
@@ -72,7 +62,7 @@ export class FakeAccessProfileRepository
   }
 
   public findMany(
-    filters: FindOneAccessProfileDTO,
+    filters: FindManyAccessProfileDTO,
   ): Promise<[AccessProfile[], number]> {
     return new Promise(resolve => {
       const accessProfiles = this.accessProfiles.filter(item => {

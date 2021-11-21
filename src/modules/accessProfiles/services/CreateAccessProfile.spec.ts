@@ -1,29 +1,29 @@
 import { FakePermissionsRepository } from '@modules/permissions/repositories/fakes/FakePermissionsRepository';
 import { CreatePermissionService } from '@modules/permissions/services/CreatePermissionService';
+import { EPermissionError } from '@modules/permissions/utils/enums/e-errors';
 import { AppError } from '@shared/errors/AppError';
-import { container } from 'tsyringe';
 import { FakeAccessProfileRepository } from '../repositories/fakes/FakeAccessProfilesRepository';
+import { EAccessProfileError } from '../utils/enums/e-errors';
 import { CreateAccessProfileService } from './CreateAccessProfileService';
 
+let fakePermissionsRepository: FakePermissionsRepository;
+let createPermission: CreatePermissionService;
+let fakeAccessProfileRepository: FakeAccessProfileRepository;
+let createAccessProfile: CreateAccessProfileService;
+
 describe('CreateAccessProfile', () => {
-  beforeAll(() => {
-    container.registerSingleton(
-      'PermissionsRepository',
-      FakePermissionsRepository,
-    );
-    container.registerSingleton(
-      'AccessProfilesRepository',
-      FakeAccessProfileRepository,
-    );
-  });
   beforeEach(() => {
-    container.clearInstances();
+    fakePermissionsRepository = new FakePermissionsRepository();
+    createPermission = new CreatePermissionService(fakePermissionsRepository);
+
+    fakeAccessProfileRepository = new FakeAccessProfileRepository();
+    createAccessProfile = new CreateAccessProfileService(
+      fakeAccessProfileRepository,
+      fakePermissionsRepository,
+    );
   });
 
   it('should be able to create a new access profile', async () => {
-    const createAccessProfile = container.resolve(CreateAccessProfileService);
-    const createPermission = container.resolve(CreatePermissionService);
-
     await createPermission.execute({
       name: 'CAN_CREATE_USER',
     });
@@ -41,11 +41,90 @@ describe('CreateAccessProfile', () => {
     expect(accessProfile.name).toBe('Admin');
   });
 
-  /* it('should not be able to create a new permission with same name', async () => {
-    const createAccessProfile = container.resolve(CreateAccessProfileService);
+  it('should not be able to create a access profile if the permissions ids are not informed', async () => {
+    expect(
+      await createAccessProfile
+        .execute({
+          name: 'Admin',
+          description: 'Access profile for admins',
+          permissionsId: '',
+          createdById: '1',
+          createdByName: 'Foo',
+          updatedById: '1',
+          updatedByName: 'Foo',
+        })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EPermissionError.IdIsRequired));
+  });
+
+  it('should not be able to create a access profile if the permission informed does not exist', async () => {
+    expect(
+      await createAccessProfile
+        .execute({
+          name: 'Admin',
+          description: 'Access profile for admins',
+          permissionsId: '1',
+          createdById: '1',
+          createdByName: 'Foo',
+          updatedById: '1',
+          updatedByName: 'Foo',
+        })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EPermissionError.NotFound));
+  });
+
+  it('should not be able to create a access profile if name provided is less than three characters', async () => {
+    await createPermission.execute({
+      name: 'CAN_CREATE_USER',
+    });
+
+    expect(
+      await createAccessProfile
+        .execute({
+          name: 'Ad',
+          description: 'Access profile for admins',
+          permissionsId: '1',
+          createdById: '1',
+          createdByName: 'Foo',
+          updatedById: '1',
+          updatedByName: 'Foo',
+        })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EAccessProfileError.NameTooShort));
+  });
+
+  it('should not be able to create a access profile if name provided is more than thirty five characters', async () => {
+    await createPermission.execute({
+      name: 'CAN_CREATE_USER',
+    });
+
+    expect(
+      await createAccessProfile
+        .execute({
+          name: 'NameVeryVeryLongoCreatedSpecifyForThisTest',
+          description: 'Access profile for admins',
+          permissionsId: '1',
+          createdById: '1',
+          createdByName: 'Foo',
+          updatedById: '1',
+          updatedByName: 'Foo',
+        })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EAccessProfileError.NameTooLong));
+  });
+
+  it('should not be able to create if this access profile is already exists', async () => {
+    await createPermission.execute({
+      name: 'CAN_CREATE_USER',
+    });
 
     await createAccessProfile.execute({
       name: 'Admin',
+      description: 'Access profile for admins',
       permissionsId: '1',
       createdById: '1',
       createdByName: 'Foo',
@@ -57,6 +136,7 @@ describe('CreateAccessProfile', () => {
       await createAccessProfile
         .execute({
           name: 'Admin',
+          description: 'Access profile for admins copy',
           permissionsId: '1',
           createdById: '1',
           createdByName: 'Foo',
@@ -65,6 +145,6 @@ describe('CreateAccessProfile', () => {
         })
         .then(res => res)
         .catch(err => err),
-    ).toBeInstanceOf(AppError);
-  }); */
+    ).toEqual(new AppError(EAccessProfileError.AlreadyExist));
+  });
 });

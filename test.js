@@ -12,3 +12,5 @@ function foo() {
 }
 
 console.log(foo());
+
+console.log(Object.keys({}));

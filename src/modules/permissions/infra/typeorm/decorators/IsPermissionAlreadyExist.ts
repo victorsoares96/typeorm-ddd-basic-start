@@ -5,14 +5,14 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { container } from 'tsyringe';
-import { FindPermissionService } from '@modules/permissions/services/FindPermissionService';
+import { FindManyPermissionService } from '@modules/permissions/services/FindManyPermissionService';
 
 @ValidatorConstraint({ async: true })
 export class IsPermissionAlreadyExistConstraint
   implements ValidatorConstraintInterface
 {
   validate(name: string) {
-    const findPermission = container.resolve(FindPermissionService);
+    const findPermission = container.resolve(FindManyPermissionService);
 
     return findPermission.execute({ name }).then(([permissions]) => {
       if (permissions.length > 0) {

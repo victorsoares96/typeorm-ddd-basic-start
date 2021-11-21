@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { container } from 'tsyringe';
 
 import { CreatePermissionService } from '@modules/permissions/services/CreatePermissionService';
-import { FindPermissionService } from '@modules/permissions/services/FindPermissionService';
+import { FindManyPermissionService } from '@modules/permissions/services/FindManyPermissionService';
 
 export class PermissionsController {
   public async create(request: Request, response: Response): Promise<Response> {
@@ -19,7 +19,7 @@ export class PermissionsController {
   public async index(request: Request, response: Response): Promise<Response> {
     const { name } = request.body;
 
-    const findPermission = container.resolve(FindPermissionService);
+    const findPermission = container.resolve(FindManyPermissionService);
     const permissions = await findPermission.execute({ name });
 
     return response.json(permissions);
