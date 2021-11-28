@@ -1,19 +1,24 @@
 import { FakePermissionsRepository } from '@modules/permissions/repositories/fakes/FakePermissionsRepository';
 import { CreatePermissionService } from '@modules/permissions/services/CreatePermissionService';
+import { AccessProfile } from '../infra/typeorm/entities/AccessProfile';
 import { FakeAccessProfileRepository } from '../repositories/fakes/FakeAccessProfilesRepository';
 import { CreateAccessProfileService } from './CreateAccessProfileService';
 import { FindManyAccessProfileService } from './FindManyAccessProfileService';
 
-let fakePermissionsRepository: FakePermissionsRepository;
-let createPermission: CreatePermissionService;
 let fakeAccessProfileRepository: FakeAccessProfileRepository;
 let createAccessProfile: CreateAccessProfileService;
 let findAccessProfiles: FindManyAccessProfileService;
+let accessProfiles: AccessProfile[] = [];
 
 describe('FindManyAccessProfile', () => {
-  beforeEach(() => {
-    fakePermissionsRepository = new FakePermissionsRepository();
-    createPermission = new CreatePermissionService(fakePermissionsRepository);
+  beforeEach(async () => {
+    const fakePermissionsRepository = new FakePermissionsRepository();
+    const createPermission = new CreatePermissionService(
+      fakePermissionsRepository,
+    );
+    await createPermission.execute({
+      name: 'CAN_CREATE_USER',
+    });
 
     fakeAccessProfileRepository = new FakeAccessProfileRepository();
     createAccessProfile = new CreateAccessProfileService(
@@ -25,11 +30,11 @@ describe('FindManyAccessProfile', () => {
     );
   });
 
-  it('should be able to search a accessProfiles', async () => {
-    await createPermission.execute({
-      name: 'CAN_CREATE_USER',
-    });
+  afterEach(() => {
+    accessProfiles = [];
+  });
 
+  it('should be able to search a accessProfiles', async () => {
     const accessProfile = await createAccessProfile.execute({
       name: 'Admin',
       description: 'Access profile for admins',
@@ -39,14 +44,15 @@ describe('FindManyAccessProfile', () => {
       updatedById: '1',
       updatedByName: 'Foo',
     });
+    accessProfiles.push(accessProfile);
 
-    const [accessProfiles, countAccessProfiles] =
+    const [findManyAccessProfiles, countAccessProfiles] =
       await findAccessProfiles.execute({
         name: 'Admin',
       });
 
-    const expectedPermissions = [accessProfile];
-    expect(accessProfiles).toEqual(expectedPermissions);
+    const expectedAccessProfiles = accessProfiles;
+    expect(findManyAccessProfiles).toEqual(expectedAccessProfiles);
     expect(countAccessProfiles).toBe(1);
   });
 });

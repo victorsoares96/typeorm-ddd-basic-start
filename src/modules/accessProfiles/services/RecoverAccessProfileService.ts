@@ -24,13 +24,13 @@ export class RecoverAccessProfileService {
     updatedById,
     updatedByName,
   }: Request): Promise<void> {
+    if (!ids) throw new AppError(EAccessProfileError.IdIsRequired);
+
     const accessProfilesIds = ids.split(',');
 
     const accessProfiles = await this.accessProfilesRepository.findByIds(
       accessProfilesIds,
-      {
-        withDeleted: true,
-      },
+      { widthDeleted: true },
     );
 
     if (!accessProfiles) throw new AppError(EAccessProfileError.NotFound);

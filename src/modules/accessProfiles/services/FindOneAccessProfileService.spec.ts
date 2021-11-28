@@ -6,16 +6,20 @@ import { FakeAccessProfileRepository } from '../repositories/fakes/FakeAccessPro
 import { CreateAccessProfileService } from './CreateAccessProfileService';
 import { FindOneAccessProfileService } from './FindOneAccessProfileService';
 
-let fakePermissionsRepository: FakePermissionsRepository;
-let createPermission: CreatePermissionService;
 let fakeAccessProfilesRepository: FakeAccessProfileRepository;
 let createAccessProfile: CreateAccessProfileService;
 let findAccessProfile: FindOneAccessProfileService;
 
 describe('FindOneAccessProfile', () => {
-  beforeEach(() => {
-    fakePermissionsRepository = new FakePermissionsRepository();
-    createPermission = new CreatePermissionService(fakePermissionsRepository);
+  beforeEach(async () => {
+    const fakePermissionsRepository = new FakePermissionsRepository();
+    const createPermission = new CreatePermissionService(
+      fakePermissionsRepository,
+    );
+    await createPermission.execute({
+      name: 'CAN_CREATE_USER',
+    });
+
     fakeAccessProfilesRepository = new FakeAccessProfileRepository();
     createAccessProfile = new CreateAccessProfileService(
       fakeAccessProfilesRepository,
@@ -46,10 +50,6 @@ describe('FindOneAccessProfile', () => {
   });
 
   it('should be able to search and return only one access profile', async () => {
-    await createPermission.execute({
-      name: 'CAN_CREATE_USER',
-    });
-
     const accessProfile = await createAccessProfile.execute({
       name: 'Admin',
       description: 'Access profile for admins',
@@ -66,6 +66,4 @@ describe('FindOneAccessProfile', () => {
 
     expect(accessProfileFound).toEqual(accessProfile);
   });
-
-  it('should return undefined if the search does not return any results', async () => {});
 });

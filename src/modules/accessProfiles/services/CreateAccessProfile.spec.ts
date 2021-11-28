@@ -12,7 +12,7 @@ let fakeAccessProfileRepository: FakeAccessProfileRepository;
 let createAccessProfile: CreateAccessProfileService;
 
 describe('CreateAccessProfile', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     fakePermissionsRepository = new FakePermissionsRepository();
     createPermission = new CreatePermissionService(fakePermissionsRepository);
 
@@ -27,6 +27,7 @@ describe('CreateAccessProfile', () => {
     await createPermission.execute({
       name: 'CAN_CREATE_USER',
     });
+
     const accessProfile = await createAccessProfile.execute({
       name: 'Admin',
       description: 'Access profile for admins',
@@ -76,10 +77,6 @@ describe('CreateAccessProfile', () => {
   });
 
   it('should not be able to create a access profile if name provided is less than three characters', async () => {
-    await createPermission.execute({
-      name: 'CAN_CREATE_USER',
-    });
-
     expect(
       await createAccessProfile
         .execute({
@@ -97,10 +94,6 @@ describe('CreateAccessProfile', () => {
   });
 
   it('should not be able to create a access profile if name provided is more than thirty five characters', async () => {
-    await createPermission.execute({
-      name: 'CAN_CREATE_USER',
-    });
-
     expect(
       await createAccessProfile
         .execute({

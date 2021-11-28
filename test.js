@@ -1,16 +1,29 @@
-const ids = ['1', '2', '3'];
+const ids = [{  id: '1', name : 'admin' }];
 
 const permissions = [
-  {  id: '1', name : 'admin' },
-  {  id: '2', name : 'user' },
+  {  id: '1', name : 'admin', status: 'active' },
+  {  id: '2', name : 'user', status: 'active' },
+  {  id: '3', name : 'guest', status: 'active' },
 ]
 
 function foo() {
-  const findPermissions = ids.map(id => permissions.find(permission => permission.id === id));
-  if (findPermissions.some(el => !el)) return undefined;
-  return findPermissions;
+  const permissionsIds = ids.map(id => id.id);
+  const findPermissions = permissions.filter(permission => permissionsIds.includes(permission.id));
+  const inactivePermissions = findPermissions.map(permission => {
+    return { ...permission, status: 'inactive' }
+  });
+
+  return inactivePermissions;
 }
 
 console.log(foo());
 
-console.log(Object.keys({}));
+const usersId = [{  id: '1', name : 'admin', status: 'inactive' }];
+
+const users = [
+  {  id: '1', name : 'admin', status: 'active' },
+  {  id: '2', name : 'user', status: 'active' },
+  {  id: '3', name : 'guest', status: 'active' },
+]
+
+console.log(users.concat(usersId));

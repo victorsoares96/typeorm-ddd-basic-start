@@ -6,12 +6,14 @@ import { EAccessProfileError } from '../utils/enums/e-errors';
 import { EAccessProfileStatus } from '../utils/enums/e-status';
 import { CreateAccessProfileService } from './CreateAccessProfileService';
 import { InactiveAccessProfileService } from './InactiveAccessProfileService';
+import { RecoverAccessProfileService } from './RecoverAccessProfileService';
 
 let fakeAccessProfilesRepository: FakeAccessProfileRepository;
-let createAccessProfile: CreateAccessProfileService;
 let inactiveAccessProfile: InactiveAccessProfileService;
+let recoverAccessProfile: RecoverAccessProfileService;
+let createAccessProfile: CreateAccessProfileService;
 
-describe('InactiveAccessProfile', () => {
+describe('RecoverAccessProfile', () => {
   beforeEach(async () => {
     const fakePermissionsRepository = new FakePermissionsRepository();
     const createPermission = new CreatePermissionService(
@@ -25,43 +27,16 @@ describe('InactiveAccessProfile', () => {
     inactiveAccessProfile = new InactiveAccessProfileService(
       fakeAccessProfilesRepository,
     );
+    recoverAccessProfile = new RecoverAccessProfileService(
+      fakeAccessProfilesRepository,
+    );
     createAccessProfile = new CreateAccessProfileService(
       fakeAccessProfilesRepository,
       fakePermissionsRepository,
     );
   });
 
-  it('should be able to inactive a access profile', async () => {
-    const accessProfile = await createAccessProfile.execute({
-      name: 'Admin',
-      description: 'Access profile for admins',
-      permissionsId: '1',
-      createdById: '1',
-      createdByName: 'Foo',
-      updatedById: '1',
-      updatedByName: 'Foo',
-    });
-
-    await inactiveAccessProfile.execute({
-      ids: '1',
-      updatedById: '1',
-      updatedByName: 'Foo',
-    });
-
-    expect(accessProfile.status).toBe(EAccessProfileStatus.Inactive);
-  });
-
-  it('should not be able to inactive a access profile if the same not exists', async () => {
-    expect(
-      inactiveAccessProfile.execute({
-        ids: '1',
-        updatedById: '1',
-        updatedByName: 'Foo',
-      }),
-    ).rejects.toEqual(new AppError(EAccessProfileError.NotFound));
-  });
-
-  it('should not be able to inactive a access profile if the same is already inactive', async () => {
+  it('should not be able to recover the access profile if the id is not provided', async () => {
     await createAccessProfile.execute({
       name: 'Admin',
       description: 'Access profile for admins',
@@ -79,11 +54,63 @@ describe('InactiveAccessProfile', () => {
     });
 
     expect(
-      inactiveAccessProfile.execute({
-        ids: '1',
+      recoverAccessProfile.execute({
+        ids: '',
         updatedById: '1',
         updatedByName: 'Foo',
       }),
-    ).rejects.toEqual(new AppError(EAccessProfileError.AlreadyInactive));
+    ).rejects.toEqual(new AppError(EAccessProfileError.IdIsRequired));
+  });
+
+  it('should not be able to recover the access profile if it is not found', async () => {
+    await createAccessProfile.execute({
+      name: 'Admin',
+      description: 'Access profile for admins',
+      permissionsId: '1',
+      createdById: '1',
+      createdByName: 'Foo',
+      updatedById: '1',
+      updatedByName: 'Foo',
+    });
+
+    await inactiveAccessProfile.execute({
+      ids: '1',
+      updatedById: '1',
+      updatedByName: 'Foo',
+    });
+
+    expect(
+      recoverAccessProfile.execute({
+        ids: '2',
+        updatedById: '1',
+        updatedByName: 'Foo',
+      }),
+    ).rejects.toEqual(new AppError(EAccessProfileError.NotFound));
+  });
+
+  it('should be able to recover a access profile', async () => {
+    const accessProfile = await createAccessProfile.execute({
+      name: 'Admin',
+      description: 'Access profile for admins',
+      permissionsId: '1',
+      createdById: '1',
+      createdByName: 'Foo',
+      updatedById: '1',
+      updatedByName: 'Foo',
+    });
+
+    await inactiveAccessProfile.execute({
+      ids: '1',
+      updatedById: '1',
+      updatedByName: 'Foo',
+    });
+
+    await recoverAccessProfile.execute({
+      ids: '1',
+      updatedById: '1',
+      updatedByName: 'Foo',
+    });
+
+    expect(accessProfile.status).toBe(EAccessProfileStatus.Active);
   });
 });

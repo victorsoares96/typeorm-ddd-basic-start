@@ -15,6 +15,8 @@ export class SoftRemoveAccessProfileService {
   ) {}
 
   public async execute({ ids }: Request): Promise<void> {
+    if (!ids) throw new AppError(EAccessProfileError.IdIsRequired);
+
     const accessProfilesIds = ids.split(',');
 
     const accessProfiles = await this.accessProfilesRepository.findByIds(

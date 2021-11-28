@@ -1,6 +1,9 @@
 import { getRepository, ILike, Repository } from 'typeorm';
 
-import { AccessProfilesRepositoryMethods } from '@modules/accessProfiles/repositories/AccessProfilesRepositoryMethods';
+import {
+  AccessProfilesRepositoryMethods,
+  FindOptions,
+} from '@modules/accessProfiles/repositories/AccessProfilesRepositoryMethods';
 import { CreateAccessProfileDTO } from '@modules/accessProfiles/dtos/CreateAccessProfileDTO';
 import { AccessProfileDTO } from '@modules/accessProfiles/dtos/AccessProfileDTO';
 import { FindManyAccessProfileDTO } from '@modules/accessProfiles/dtos/FindManyAccessProfileDTO';
@@ -104,8 +107,13 @@ export class AccessProfileRepository
     return accessProfiles;
   }
 
-  public async findByIds(ids: string[]): Promise<AccessProfile[] | undefined> {
-    const findAccessProfiles = await this.ormRepository.findByIds(ids);
+  public async findByIds(
+    ids: string[],
+    options?: FindOptions,
+  ): Promise<AccessProfile[] | undefined> {
+    const findAccessProfiles = await this.ormRepository.findByIds(ids, {
+      withDeleted: options ? options.widthDeleted : false,
+    });
     if (findAccessProfiles.length === ids.length) return findAccessProfiles;
     return undefined;
   }

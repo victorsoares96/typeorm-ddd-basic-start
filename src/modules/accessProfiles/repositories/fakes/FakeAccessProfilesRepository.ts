@@ -123,24 +123,25 @@ export class FakeAccessProfileRepository
   }
 
   public async remove(data: AccessProfileDTO[]): Promise<AccessProfile[]> {
-    const accessProfiles = data;
-    return accessProfiles;
+    const accessProfilesId = data.map(accessProfile => accessProfile.id);
+    const accessProfiles = this.accessProfiles.filter(
+      accessProfile => !accessProfilesId.includes(accessProfile.id),
+    );
+
+    this.accessProfiles = accessProfiles;
+    return data;
   }
 
   public async softRemove(data: AccessProfileDTO[]): Promise<AccessProfile[]> {
-    const accessProfiles = data;
-
-    accessProfiles.forEach(accessProfile => {
-      const index = this.accessProfiles.findIndex(
-        item => item.id === accessProfile.id,
-      );
-
-      this.accessProfiles[index] = {
-        ...this.accessProfiles[index],
-        status: EAccessProfileStatus.Inactive,
-      };
+    const accessProfilesId = data.map(id => id.id);
+    const findAccessProfiles = this.accessProfiles.filter(accessProfile =>
+      accessProfilesId.includes(accessProfile.id),
+    );
+    const softRemoveAccessProfiles = findAccessProfiles.map(accessProfile => {
+      return { ...accessProfile, status: EAccessProfileStatus.Deleted };
     });
 
-    return this.accessProfiles;
+    this.accessProfiles = softRemoveAccessProfiles;
+    return softRemoveAccessProfiles;
   }
 }
