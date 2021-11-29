@@ -8,6 +8,16 @@ import { PermissionsRepositoryMethods } from '@modules/permissions/repositories/
 import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
 import { EAccessProfileError } from '../utils/enums/e-errors';
 
+/**
+ * [x] Recebimento das informações
+ * [x] Tratativa de erros/excessões
+ * [x] Acesso ao repositório
+ */
+
+/**
+ * Dependency Inversion (SOLID)
+ */
+
 interface Request {
   id: string;
   name?: string;
@@ -29,11 +39,16 @@ export class UpdateAccessProfileService {
   public async execute(accessProfileData: Request): Promise<AccessProfile> {
     const { id, permissionsId } = accessProfileData;
 
+    if (accessProfileData.name && accessProfileData.name.length < 3)
+      throw new AppError(EAccessProfileError.NameTooShort);
+    if (accessProfileData.name && accessProfileData.name.length > 35)
+      throw new AppError(EAccessProfileError.NameTooLong);
+
     if (!id) throw new AppError(EAccessProfileError.IdIsRequired);
     if (!permissionsId) throw new AppError(EPermissionError.IsRequired);
 
     const accessProfile = await this.accessProfilesRepository.findOne({
-      where: { id },
+      id,
     });
 
     if (!accessProfile) throw new AppError(EAccessProfileError.NotFound);

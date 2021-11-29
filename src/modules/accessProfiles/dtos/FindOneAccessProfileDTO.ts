@@ -1,4 +1,5 @@
 export interface FindOneAccessProfileDTO {
+  id?: string;
   name?: string;
   description?: string;
   status?: number;

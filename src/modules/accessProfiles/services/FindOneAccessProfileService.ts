@@ -1,9 +1,9 @@
 import { injectable, inject } from 'tsyringe';
 import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
-import { FindManyAccessProfileDTO } from '@modules/accessProfiles/dtos/FindManyAccessProfileDTO';
 import { AppError } from '@shared/errors/AppError';
 import { EGenericError } from '@shared/utils/enums/e-errors';
 import { AccessProfilesRepositoryMethods } from '../repositories/AccessProfilesRepositoryMethods';
+import { FindOneAccessProfileDTO } from '../dtos/FindOneAccessProfileDTO';
 
 /**
  * [x] Recebimento das informações
@@ -23,7 +23,7 @@ export class FindOneAccessProfileService {
   ) {}
 
   public async execute(
-    filters: FindManyAccessProfileDTO,
+    filters: FindOneAccessProfileDTO,
   ): Promise<AccessProfile | undefined> {
     if (
       Object.keys(filters).length === 0 ||
