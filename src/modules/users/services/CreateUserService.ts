@@ -70,6 +70,8 @@ export class CreateUserService {
 
     if (!accessProfile) throw new AppError(EAccessProfileError.NotFound);
 
+    console.log(this.usersRepository);
+    console.log(this.accessProfilesRepository);
     const userExists = await this.usersRepository.findOne({
       username,
     });
