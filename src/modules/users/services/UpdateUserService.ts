@@ -35,11 +35,11 @@ export class UpdateUserService {
     if (!id) throw new AppError(EUserError.IsRequired);
     if (!accessProfileId) throw new AppError(EAccessProfileError.IdIsRequired);
 
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findOne({ id });
     if (!user) throw new AppError(EUserError.NotFound);
 
     const accessProfile = await this.accessProfilesRepository.findOne({
-      where: { id: accessProfileId },
+      id: accessProfileId,
     });
     if (!accessProfile) throw new AppError(EAccessProfileError.NotFound);
 

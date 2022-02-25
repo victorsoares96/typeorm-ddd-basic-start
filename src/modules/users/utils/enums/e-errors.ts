@@ -8,6 +8,14 @@ export enum EUserError {
   CurrentOrNewPasswordRequired = 'The current password/new password is required.',
   IncorrectPassword = 'The password is incorrect.',
   SomeAlreadyInactive = 'Some or some users are already inactive.',
+  FirstNameIsRequired = 'First name is required.',
+  LastNameIsRequired = 'Last name is required.',
+  UsernameTooShort = 'The username must be at least 5 characters long.',
+  UsernameTooLong = 'The username must be at most 15 characters long.',
+  UsernameIsRequired = 'Username is required.',
+  EmailIsRequired = 'Email is required.',
+  EmailIsInvalid = 'Email is invalid.',
+  PasswordMustBeAtLeastEightCharsOneUpperCaseAndOneNumber = 'Password must be at least 8 characters, 1 upper case, 1 number.',
 }
 
 export enum ESessionError {

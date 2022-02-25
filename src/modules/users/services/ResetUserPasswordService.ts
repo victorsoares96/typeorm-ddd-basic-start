@@ -29,7 +29,7 @@ export class ResetUserPasswordService {
     if (!currentPassword || !newPassword)
       throw new AppError(EUserError.CurrentOrNewPasswordRequired);
 
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.usersRepository.findOne({ id });
 
     if (!user) throw new AppError(EUserError.NotFound);
 

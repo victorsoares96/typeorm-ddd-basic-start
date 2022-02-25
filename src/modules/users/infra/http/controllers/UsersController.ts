@@ -6,10 +6,6 @@ import {
   CreateUserService,
   Request as CreateRequest,
 } from '@modules/users/services/CreateUserService';
-import {
-  FindUserService,
-  Request as FindRequest,
-} from '@modules/users/services/FindUserService';
 import { EUserStatus } from '@modules/users/utils/enums/e-user';
 import { InactiveUserService } from '@modules/users/services/InactiveUserService';
 import { RecoverUserService } from '@modules/users/services/RecoverUserService';
@@ -20,6 +16,8 @@ import { UpdateUserAvatarService } from '@modules/users/services/UpdateUserAvata
 import { AppError } from '@shared/errors/AppError';
 import { EGenericError } from '@shared/utils/enums/e-errors';
 import { ResetUserPasswordService } from '@modules/users/services/ResetUserPasswordService';
+import { FindManyUserDTO } from '@modules/users/dtos/FindManyUserDTO';
+import { FindManyUserService } from '@modules/users/services/FindManyUserService';
 
 export class UsersController {
   public async create(request: Request, response: Response): Promise<Response> {
@@ -56,9 +54,9 @@ export class UsersController {
   }
 
   public async index(request: Request, response: Response): Promise<Response> {
-    const filters = request.body as FindRequest;
+    const filters = request.body as FindManyUserDTO;
 
-    const findUsers = container.resolve(FindUserService);
+    const findUsers = container.resolve(FindManyUserService);
     const users = await findUsers.execute(filters);
 
     return response.json(users);

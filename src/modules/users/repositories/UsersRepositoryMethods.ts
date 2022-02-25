@@ -1,18 +1,17 @@
-import { FindManyOptions, FindOneOptions } from 'typeorm';
-
 import { CreateUserDTO } from '../dtos/CreateUserDTO';
+import { FindManyUserDTO } from '../dtos/FindManyUserDTO';
+import { FindOneUserDTO } from '../dtos/FindOneUserDTO';
 import { UserDTO } from '../dtos/UserDTO';
 import { User } from '../infra/typeorm/entities/User';
 
+export interface FindOptions {
+  withDeleted?: boolean;
+}
 export interface UsersRepositoryMethods {
   create(data: CreateUserDTO): Promise<User>;
-  findOne(options?: FindOneOptions<User>): Promise<User | undefined>;
-  findAndCount(options?: FindManyOptions<User>): Promise<[User[], number]>;
-  findByIds(
-    ids: any[],
-    options?: FindManyOptions<User>,
-  ): Promise<User[] | undefined>;
-  findByUsername(username: string): Promise<User | undefined>;
+  findOne(data: FindOneUserDTO): Promise<User | undefined>;
+  findMany(data: FindManyUserDTO): Promise<[User[], number]>;
+  findByIds(ids: string[], options?: FindOptions): Promise<User[] | undefined>;
   update(data: UserDTO[]): Promise<User[]>;
   recover(data: UserDTO[]): Promise<User[]>;
   remove(data: UserDTO[]): Promise<User[]>;

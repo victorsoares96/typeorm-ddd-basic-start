@@ -21,7 +21,7 @@ export class UpdateUserAvatarService {
   ) {}
 
   public async execute({ userId, avatarFilename }: Request): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    const user = await this.usersRepository.findOne({ id: userId });
 
     if (!user) throw new AppError(EUserError.NotFound);
 

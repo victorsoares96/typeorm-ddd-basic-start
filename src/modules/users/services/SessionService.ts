@@ -28,7 +28,7 @@ export class SessionService {
   ) {}
 
   public async execute({ username, password }: Request): Promise<Response> {
-    const user = await this.usersRepository.findOne({ where: { username } });
+    const user = await this.usersRepository.findOne({ username });
 
     if (!user)
       throw new AppError(

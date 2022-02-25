@@ -1,17 +1,16 @@
-import {
-  EntityRepository,
-  FindManyOptions,
-  FindOneOptions,
-  getRepository,
-  Repository,
-} from 'typeorm';
+import { EntityRepository, getRepository, ILike, Repository } from 'typeorm';
 
-import { UsersRepositoryMethods } from '@modules/users/repositories/UsersRepositoryMethods';
+import {
+  FindOptions,
+  UsersRepositoryMethods,
+} from '@modules/users/repositories/UsersRepositoryMethods';
 import { User } from '@modules/users/infra/typeorm/entities/User';
 import { CreateUserDTO } from '@modules/users/dtos/CreateUserDTO';
 import { validate } from 'class-validator';
 import { AppError } from '@shared/errors/AppError';
 import { UserDTO } from '@modules/users/dtos/UserDTO';
+import { FindOneUserDTO } from '@modules/users/dtos/FindOneUserDTO';
+import { FindManyUserDTO } from '@modules/users/dtos/FindManyUserDTO';
 
 @EntityRepository(User)
 export class UserRepository implements UsersRepositoryMethods {
@@ -38,37 +37,80 @@ export class UserRepository implements UsersRepositoryMethods {
     return user;
   }
 
-  public async findOne(
-    options?: FindOneOptions<User>,
-  ): Promise<User | undefined> {
-    const findUser = await this.ormRepository.findOne(options);
+  public async findOne(filters: FindOneUserDTO): Promise<User | undefined> {
+    const { isDeleted = false } = filters;
 
-    return findUser;
+    const onlyValueFilters = Object.entries(filters).filter(
+      ([, value]) => value,
+    );
+    const query = Object.fromEntries(onlyValueFilters) as FindOneUserDTO;
+
+    delete query.isDeleted;
+
+    const user = await this.ormRepository.findOne({
+      where: [{ ...query }],
+      loadEagerRelations: true,
+      withDeleted: isDeleted,
+    });
+
+    return user;
   }
 
-  public async findAndCount(
-    options?: FindManyOptions<User>,
-  ): Promise<[User[], number]> {
-    const accessUsers = await this.ormRepository.findAndCount(options);
+  public async findMany(filters: FindManyUserDTO): Promise<[User[], number]> {
+    const {
+      firstName = '',
+      lastName = '',
+      fullName = '',
+      email = '',
+      username = '',
+      isDeleted = false,
+      offset = 0,
+      isAscending = false,
+      limit = 20,
+    } = filters;
 
-    return accessUsers;
+    const onlyValueFilters = Object.entries(filters).filter(
+      ([, value]) => value,
+    );
+    const query = Object.fromEntries(onlyValueFilters) as FindManyUserDTO;
+
+    delete query.isDeleted;
+    delete query.offset;
+    delete query.isAscending;
+    delete query.limit;
+
+    const users = await this.ormRepository.findAndCount({
+      where: [
+        {
+          ...query,
+          firstName: ILike(`%${firstName}%`),
+          lastName: ILike(`%${lastName}%`),
+          fullName: ILike(`%${fullName}%`),
+          email: ILike(`%${email}%`),
+          username: ILike(`%${username}%`),
+        },
+      ],
+      loadEagerRelations: true,
+      withDeleted: isDeleted,
+      take: limit,
+      skip: offset,
+      order: {
+        createdAt: isAscending ? 'ASC' : 'DESC',
+      },
+    });
+
+    return users;
   }
 
   public async findByIds(
-    ids: any[],
-    options?: FindManyOptions<User>,
+    ids: string[],
+    options?: FindOptions,
   ): Promise<User[] | undefined> {
-    const findUsers = await this.ormRepository.findByIds(ids, options);
+    const findUsers = await this.ormRepository.findByIds(ids, {
+      withDeleted: options ? options.withDeleted : false,
+    });
     if (findUsers.length === ids.length) return findUsers;
     return undefined;
-  }
-
-  public async findByUsername(username: string): Promise<User | undefined> {
-    const findUser = await this.ormRepository.findOne({
-      where: { username },
-    });
-
-    return findUser;
   }
 
   public async update(data: UserDTO[]): Promise<User[]> {

@@ -11,13 +11,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { hashSync } from 'bcryptjs';
-import { IsEmail, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
 
 import { EUserStatus } from '@modules/users/utils/enums/e-user';
 import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
-import { IsValidPassword } from '@shared/infra/typeorm/decorators/IsValidPassword';
-import { IsUserAlreadyExist } from '@shared/infra/typeorm/decorators/IsUserAlreadyExist';
-import { EUserError } from '@modules/users/utils/enums/e-errors';
 
 @Entity('user')
 export class User {
@@ -25,11 +21,9 @@ export class User {
   id: string;
 
   @Column({ name: 'first_name' })
-  @IsNotEmpty({ message: 'First name is required.' })
   firstName: string;
 
   @Column({ name: 'last_name' })
-  @IsNotEmpty({ message: 'Last name is required.' })
   lastName: string;
 
   @Column({ name: 'full_name' })
@@ -94,20 +88,12 @@ export class User {
   avatar: string;
 
   @Column({ name: 'username', unique: true })
-  @MinLength(5, { message: 'Username is too short.' })
-  @MaxLength(15, { message: 'Username is too long.' })
-  @IsUserAlreadyExist({ message: EUserError.AlreadyExist })
   username: string;
 
   @Column({ name: 'email', unique: true })
-  @IsNotEmpty({ message: 'Email is required.' })
-  @IsEmail({}, { message: 'Email is invalid.' })
   email: string;
 
   @Column({ name: 'password' })
-  @IsValidPassword({
-    message: 'Password must be at least 8 characters, 1 upper case, 1 number.',
-  })
   password: string;
 
   @BeforeInsert()
