@@ -1,18 +1,18 @@
+import { FakeAccessProfileRepository } from '@modules/accessProfiles/repositories/fakes/FakeAccessProfilesRepository';
+import { CreateAccessProfileService } from '@modules/accessProfiles/services/CreateAccessProfileService';
 import { FakePermissionsRepository } from '@modules/permissions/repositories/fakes/FakePermissionsRepository';
 import { CreatePermissionService } from '@modules/permissions/services/CreatePermissionService';
-import { CreateAccessProfileService } from '@modules/accessProfiles/services/CreateAccessProfileService';
-import { FakeAccessProfileRepository } from '@modules/accessProfiles/repositories/fakes/FakeAccessProfilesRepository';
-import { User } from '../infra/typeorm/entities/User';
+import { AppError } from '@shared/errors/AppError';
+import { EGenericError } from '@shared/utils/enums/e-errors';
 import { FakeUsersRepository } from '../repositories/fakes/FakeUsersRepository';
-import { CreateUserService } from './CreateUserService';
-import { FindManyUserService } from './FindManyUserService';
 import { EUserStatus } from '../utils/enums/e-user';
+import { CreateUserService } from './CreateUserService';
+import { FindOneUserService } from './FindOneUserService';
 
 let createUser: CreateUserService;
-let findUsers: FindManyUserService;
-let users: User[] = [];
+let findUser: FindOneUserService;
 
-describe('FindManyUser', () => {
+describe('FindOneUser', () => {
   beforeEach(async () => {
     const fakePermissionsRepository = new FakePermissionsRepository();
     const createPermission = new CreatePermissionService(
@@ -22,9 +22,9 @@ describe('FindManyUser', () => {
       name: 'CAN_CREATE_USER',
     });
 
-    const fakeAccessProfileRepository = new FakeAccessProfileRepository();
+    const fakeAccessProfilesRepository = new FakeAccessProfileRepository();
     const createAccessProfile = new CreateAccessProfileService(
-      fakeAccessProfileRepository,
+      fakeAccessProfilesRepository,
       fakePermissionsRepository,
     );
     await createAccessProfile.execute({
@@ -38,18 +38,31 @@ describe('FindManyUser', () => {
     });
 
     const fakeUsersRepository = new FakeUsersRepository();
-    findUsers = new FindManyUserService(fakeUsersRepository);
+    findUser = new FindOneUserService(fakeUsersRepository);
     createUser = new CreateUserService(
       fakeUsersRepository,
-      fakeAccessProfileRepository,
+      fakeAccessProfilesRepository,
     );
   });
 
-  afterEach(() => {
-    users = [];
+  it('should not allow the search if no filter is sent', async () => {
+    expect(
+      await findUser
+        .execute({ username: '' })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EGenericError.MissingFilters));
+    expect(
+      await findUser
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        .execute({})
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EGenericError.MissingFilters));
   });
 
-  it('should be able to search a users', async () => {
+  it('should be able to search and return only one user', async () => {
     const user = await createUser.execute({
       firstName: 'Foo',
       lastName: 'Bar',
@@ -65,14 +78,11 @@ describe('FindManyUser', () => {
       email: 'john@doe.com',
       password: 'Password123',
     });
-    users.push(user);
 
-    const [findManyUsers, countUsers] = await findUsers.execute({
+    const userFound = await findUser.execute({
       username: 'foobar',
     });
 
-    const expectedUsers = users;
-    expect(findManyUsers).toEqual(expectedUsers);
-    expect(countUsers).toBe(1);
+    expect(userFound).toEqual(user);
   });
 });

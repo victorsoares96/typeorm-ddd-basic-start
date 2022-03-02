@@ -16,6 +16,10 @@ export class RemoveUserService {
   ) {}
 
   public async execute({ ids }: Request): Promise<void> {
+    if (!ids) {
+      throw new AppError(EUserError.IdIsRequired);
+    }
+
     const usersId = ids.split(',');
 
     const users = await this.usersRepository.findByIds(usersId);

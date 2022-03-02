@@ -39,18 +39,24 @@ describe('SoftRemoveAccessProfile', () => {
 
   it('should not be able to recover the access profile if the id is not provided', async () => {
     expect(
-      softRemoveAccessProfile.execute({
-        ids: '',
-      }),
-    ).rejects.toEqual(new AppError(EAccessProfileError.IdIsRequired));
+      await softRemoveAccessProfile
+        .execute({
+          ids: '',
+        })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EAccessProfileError.IdIsRequired));
   });
 
   it('should not be able to recover the access profile if it is not found', async () => {
     expect(
-      softRemoveAccessProfile.execute({
-        ids: '1',
-      }),
-    ).rejects.toEqual(new AppError(EAccessProfileError.NotFound));
+      await softRemoveAccessProfile
+        .execute({
+          ids: '1',
+        })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EAccessProfileError.NotFound));
   });
 
   it('should be able to soft remove a access profile', async () => {

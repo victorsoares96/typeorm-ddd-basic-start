@@ -1,4 +1,3 @@
-import { compare, hash } from 'bcryptjs';
 import { validate } from 'class-validator';
 import { injectable, inject } from 'tsyringe';
 
@@ -6,6 +5,7 @@ import { AppError } from '@shared/errors/AppError';
 import { User } from '@modules/users/infra/typeorm/entities/User';
 import { EUserError } from '@modules/users/utils/enums/e-errors';
 import { UsersRepositoryMethods } from '../repositories/UsersRepositoryMethods';
+import { HashProviderMethods } from '../providers/HashProvider/models/HashProviderMethods';
 
 interface Request {
   id: string;
@@ -18,6 +18,8 @@ export class ResetUserPasswordService {
   constructor(
     @inject('UsersRepository')
     private usersRepository: UsersRepositoryMethods,
+    @inject('HashProvider')
+    private hashProvider: HashProviderMethods,
   ) {}
 
   public async execute({
@@ -33,11 +35,14 @@ export class ResetUserPasswordService {
 
     if (!user) throw new AppError(EUserError.NotFound);
 
-    const passwordMatched = await compare(currentPassword, user.password);
+    const passwordMatched = await this.hashProvider.compareHash(
+      currentPassword,
+      user.password,
+    );
 
     if (!passwordMatched) throw new AppError(EUserError.IncorrectPassword, 401);
 
-    const hashPassword = await hash(newPassword, 8);
+    const hashPassword = await this.hashProvider.generateHash(newPassword);
 
     const updatedUser: User = {
       ...user,

@@ -32,7 +32,7 @@ export class UpdateUserService {
   public async execute(userData: Request): Promise<User> {
     const { id, accessProfileId } = userData;
 
-    if (!id) throw new AppError(EUserError.IsRequired);
+    if (!id) throw new AppError(EUserError.IdIsRequired);
     if (!accessProfileId) throw new AppError(EAccessProfileError.IdIsRequired);
 
     const user = await this.usersRepository.findOne({ id });

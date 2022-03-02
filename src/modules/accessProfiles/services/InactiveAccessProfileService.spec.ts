@@ -53,12 +53,15 @@ describe('InactiveAccessProfile', () => {
 
   it('should not be able to inactive a access profile if the same not exists', async () => {
     expect(
-      inactiveAccessProfile.execute({
-        ids: '1',
-        updatedById: '1',
-        updatedByName: 'Foo',
-      }),
-    ).rejects.toEqual(new AppError(EAccessProfileError.NotFound));
+      await inactiveAccessProfile
+        .execute({
+          ids: '1',
+          updatedById: '1',
+          updatedByName: 'Foo',
+        })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EAccessProfileError.NotFound));
   });
 
   it('should not be able to inactive a access profile if the same is already inactive', async () => {
@@ -79,11 +82,14 @@ describe('InactiveAccessProfile', () => {
     });
 
     expect(
-      inactiveAccessProfile.execute({
-        ids: '1',
-        updatedById: '1',
-        updatedByName: 'Foo',
-      }),
-    ).rejects.toEqual(new AppError(EAccessProfileError.AlreadyInactive));
+      await inactiveAccessProfile
+        .execute({
+          ids: '1',
+          updatedById: '1',
+          updatedByName: 'Foo',
+        })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EAccessProfileError.AlreadyInactive));
   });
 });

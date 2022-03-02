@@ -54,12 +54,15 @@ describe('RecoverAccessProfile', () => {
     });
 
     expect(
-      recoverAccessProfile.execute({
-        ids: '',
-        updatedById: '1',
-        updatedByName: 'Foo',
-      }),
-    ).rejects.toEqual(new AppError(EAccessProfileError.IdIsRequired));
+      await recoverAccessProfile
+        .execute({
+          ids: '',
+          updatedById: '1',
+          updatedByName: 'Foo',
+        })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EAccessProfileError.IdIsRequired));
   });
 
   it('should not be able to recover the access profile if it is not found', async () => {
@@ -80,12 +83,15 @@ describe('RecoverAccessProfile', () => {
     });
 
     expect(
-      recoverAccessProfile.execute({
-        ids: '2',
-        updatedById: '1',
-        updatedByName: 'Foo',
-      }),
-    ).rejects.toEqual(new AppError(EAccessProfileError.NotFound));
+      await recoverAccessProfile
+        .execute({
+          ids: '2',
+          updatedById: '1',
+          updatedByName: 'Foo',
+        })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EAccessProfileError.NotFound));
   });
 
   it('should be able to recover a access profile', async () => {

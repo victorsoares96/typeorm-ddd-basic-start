@@ -1,18 +1,21 @@
+import { FakeAccessProfileRepository } from '@modules/accessProfiles/repositories/fakes/FakeAccessProfilesRepository';
+import { CreateAccessProfileService } from '@modules/accessProfiles/services/CreateAccessProfileService';
 import { FakePermissionsRepository } from '@modules/permissions/repositories/fakes/FakePermissionsRepository';
 import { CreatePermissionService } from '@modules/permissions/services/CreatePermissionService';
-import { CreateAccessProfileService } from '@modules/accessProfiles/services/CreateAccessProfileService';
-import { FakeAccessProfileRepository } from '@modules/accessProfiles/repositories/fakes/FakeAccessProfilesRepository';
-import { User } from '../infra/typeorm/entities/User';
+import { AppError } from '@shared/errors/AppError';
+import { FakeHashProvider } from '../providers/HashProvider/fakes/FakeHashProvider';
 import { FakeUsersRepository } from '../repositories/fakes/FakeUsersRepository';
-import { CreateUserService } from './CreateUserService';
-import { FindManyUserService } from './FindManyUserService';
+import { ESessionError } from '../utils/enums/e-errors';
 import { EUserStatus } from '../utils/enums/e-user';
+import { CreateUserService } from './CreateUserService';
+import { SessionService } from './SessionService';
 
+let fakeUsersRepository: FakeUsersRepository;
 let createUser: CreateUserService;
-let findUsers: FindManyUserService;
-let users: User[] = [];
+let fakeHashProvider: FakeHashProvider;
+let sessionUser: SessionService;
 
-describe('FindManyUser', () => {
+describe('SessionUser', () => {
   beforeEach(async () => {
     const fakePermissionsRepository = new FakePermissionsRepository();
     const createPermission = new CreatePermissionService(
@@ -37,19 +40,17 @@ describe('FindManyUser', () => {
       updatedByName: 'Foo',
     });
 
-    const fakeUsersRepository = new FakeUsersRepository();
-    findUsers = new FindManyUserService(fakeUsersRepository);
+    fakeUsersRepository = new FakeUsersRepository();
     createUser = new CreateUserService(
       fakeUsersRepository,
       fakeAccessProfileRepository,
     );
+
+    fakeHashProvider = new FakeHashProvider();
+    sessionUser = new SessionService(fakeUsersRepository, fakeHashProvider);
   });
 
-  afterEach(() => {
-    users = [];
-  });
-
-  it('should be able to search a users', async () => {
+  it('should be able to authenticate', async () => {
     const user = await createUser.execute({
       firstName: 'Foo',
       lastName: 'Bar',
@@ -65,14 +66,25 @@ describe('FindManyUser', () => {
       email: 'john@doe.com',
       password: 'Password123',
     });
-    users.push(user);
 
-    const [findManyUsers, countUsers] = await findUsers.execute({
+    const response = await sessionUser.execute({
       username: 'foobar',
+      password: 'Password123',
     });
 
-    const expectedUsers = users;
-    expect(findManyUsers).toEqual(expectedUsers);
-    expect(countUsers).toBe(1);
+    expect(response).toHaveProperty('token');
+    expect(response.user).toEqual(user);
+  });
+
+  it('should not be able to authenticate if provide incorrect username and password combination', async () => {
+    expect(
+      await sessionUser
+        .execute({
+          username: 'johndoe',
+          password: 'Password123',
+        })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(ESessionError.IncorrectUsernamePasswordCombination));
   });
 });

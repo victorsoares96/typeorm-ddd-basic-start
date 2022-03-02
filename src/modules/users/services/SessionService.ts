@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 import { injectable, inject } from 'tsyringe';
 
@@ -9,6 +8,7 @@ import { AppError } from '@shared/errors/AppError';
 import { User } from '../infra/typeorm/entities/User';
 import { UsersRepositoryMethods } from '../repositories/UsersRepositoryMethods';
 import { ESessionError } from '../utils/enums/e-errors';
+import { HashProviderMethods } from '../providers/HashProvider/models/HashProviderMethods';
 
 export interface Request {
   username: string;
@@ -25,6 +25,8 @@ export class SessionService {
   constructor(
     @inject('UsersRepository')
     private usersRepository: UsersRepositoryMethods,
+    @inject('HashProvider')
+    private hashProvider: HashProviderMethods,
   ) {}
 
   public async execute({ username, password }: Request): Promise<Response> {
@@ -36,7 +38,10 @@ export class SessionService {
         401,
       );
 
-    const passwordMatched = await compare(password, user.password);
+    const passwordMatched = await this.hashProvider.compareHash(
+      password,
+      user.password,
+    );
 
     if (!passwordMatched)
       throw new AppError(

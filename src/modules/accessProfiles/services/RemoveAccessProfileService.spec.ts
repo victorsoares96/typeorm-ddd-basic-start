@@ -45,15 +45,21 @@ describe('RemoveAccessProfile', () => {
   });
 
   it('should not be able to remove the access profile if the id is not provided', async () => {
-    expect(removeAccessProfile.execute({ ids: '' })).rejects.toEqual(
-      new AppError(EAccessProfileError.IdIsRequired),
-    );
+    expect(
+      await removeAccessProfile
+        .execute({ ids: '' })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EAccessProfileError.IdIsRequired));
   });
 
   it('should not be able to remove the access profile if it is not found', async () => {
-    expect(removeAccessProfile.execute({ ids: '2' })).rejects.toEqual(
-      new AppError(EAccessProfileError.NotFound),
-    );
+    expect(
+      await removeAccessProfile
+        .execute({ ids: '2' })
+        .then(res => res)
+        .catch(err => err),
+    ).toEqual(new AppError(EAccessProfileError.NotFound));
   });
 
   it('should be able to remove a access profile', async () => {
