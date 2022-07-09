@@ -65,7 +65,7 @@ class App {
   private database(): void {
     this.connection
       .then(() => {
-        console.log('📦  Connected to database!');
+        console.log(`📦  Connected to ${process.env.DATABASE}!`);
         this.startServer();
         this.tsyringe();
       })

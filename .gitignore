@@ -3,3 +3,5 @@ coverage/*
 !coverage/.gitkeep
 tmp/*
 !tmp/.gitkeep
+.env
+package-lock.json

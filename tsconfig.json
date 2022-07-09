@@ -4,7 +4,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "module": "commonjs",
-    "rootDir": ".",
+    "rootDir": "./src",
     "baseUrl": "./src",
     "paths": {
       "@modules/*": ["modules/*"],
@@ -19,5 +19,8 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true
-  }
+  },
+  "include": [
+    "src/**/*"
+  ]
 }

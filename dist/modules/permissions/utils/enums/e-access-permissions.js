@@ -1,0 +1,10 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.CAN_VIEW_PERMISSIONS = exports.CAN_CREATE_PERMISSION = void 0;
+const CAN_VIEW_PERMISSIONS = 'CAN_VIEW_PERMISSIONS';
+exports.CAN_VIEW_PERMISSIONS = CAN_VIEW_PERMISSIONS;
+const CAN_CREATE_PERMISSION = 'CAN_CREATE_PERMISSION';
+exports.CAN_CREATE_PERMISSION = CAN_CREATE_PERMISSION;
