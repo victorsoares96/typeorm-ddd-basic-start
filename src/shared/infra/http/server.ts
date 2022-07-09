@@ -65,7 +65,7 @@ class App {
   private database(): void {
     this.connection
       .then(() => {
-        console.log('📦  Connected to database!');
+        console.log(`📦  Connected to ${process.env.DATABASE}!`);
         this.startServer();
         this.tsyringe();
       })
@@ -82,7 +82,7 @@ class App {
   }
 
   private routes(): void {
-    this.express.use('/files', express.static(uploadConfig.directory));
+    this.express.use('/files', express.static(uploadConfig.uploadsFolder));
 
     this.express.use(sessionsRouter);
     this.express.use(usersRouter);
