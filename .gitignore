@@ -1,7 +1,21 @@
+# Dependencies:
 node_modules/
+
+# Tests:
 coverage/*
 !coverage/.gitkeep
+
+# Build:
+dist/*
+!dist/.gitkeep
+
+# Misc:
 tmp/*
 !tmp/.gitkeep
-.env
 package-lock.json
+
+# Environment:
+.env
+
+# DS_Store:
+.DS_Store
