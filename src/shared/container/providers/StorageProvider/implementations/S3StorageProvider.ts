@@ -4,7 +4,7 @@ import path from 'path';
 import aws from 'aws-sdk';
 
 import uploadConfig from '@config/upload';
-import StorageProviderMethods from '../models/StorageProviderMethods';
+import { StorageProviderMethods } from '../models/StorageProviderMethods';
 
 export class S3StorageProvider implements StorageProviderMethods {
   private client: aws.S3;

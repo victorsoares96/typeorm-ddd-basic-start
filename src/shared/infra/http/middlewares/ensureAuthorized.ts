@@ -35,16 +35,12 @@ class Decoder {
     const decoded = verify(token, authConfig.jwt.secret);
     const { sub: id } = decoded as TokenPayload;
 
-    const user = await this.usersRepository.findOne({
-      where: { id },
-      relations: ['accessProfile'],
-    });
+    const user = await this.usersRepository.findOne({ id });
 
     if (!user) throw new AppError(EUserError.NotFound);
 
     const accessProfile = await this.accessProfilesRepository.findOne({
-      where: { id: user.accessProfile.id },
-      relations: ['permissions'],
+      id: user.accessProfile.id,
     });
 
     if (!accessProfile) throw new AppError(EAccessProfileError.NotFound);
