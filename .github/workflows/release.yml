@@ -1,8 +1,14 @@
 name: release
 
 on:
-  release:
-    types: [created]
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'LICENSE'
+      - '.editorconfig'
+      - '.eslintrc.json'
+      - '.prettier.config.js'
 
 jobs:
   validate:
