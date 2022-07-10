@@ -62,7 +62,7 @@ jobs:
           heroku_email: "vitorsoares96@hotmail.com"
           buildpack: https://github.com/heroku/heroku-buildpack-nodejs
           procfile: "web: yarn prod:server"
-          branch: "test"
+          branch: "dev"
       - name: Running migrations
         run: "heroku run --app typeorm-ddd-basic-start yarn prod:typeorm:migrate"
         env:
