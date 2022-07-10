@@ -15,16 +15,12 @@ jobs:
     name: "Validate"
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [16.x]
-
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 16.x
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "16.x"
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Formatting
@@ -40,16 +36,12 @@ jobs:
     name: "Deploy"
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [16.x]
-
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 16.x
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "16.x"
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Build
@@ -62,7 +54,9 @@ jobs:
           heroku_email: "vitorsoares96@hotmail.com"
           buildpack: https://github.com/heroku/heroku-buildpack-nodejs
           procfile: "web: yarn prod:server"
+          dontautocreate: true
           branch: "dev"
+          remote_branch: "dev"
       - name: Running migrations
         run: "heroku run --app typeorm-ddd-basic-start yarn prod:typeorm:migrate"
         env:
