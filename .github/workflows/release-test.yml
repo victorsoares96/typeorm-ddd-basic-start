@@ -24,6 +24,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "typeorm-ddd-basic-start" #Must be unique in Heroku
+          heroku_email: "vitorsoares96@hotmail.com"
+          buildpack: https://github.com/heroku/heroku-buildpack-nodejs
+          procfile: "web: yarn prod:server"
+          branch: "test"
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Formatting
@@ -37,14 +43,8 @@ jobs:
       - name: Build
         run: yarn build
       - name: Deploy
-      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "typeorm-ddd-basic-start" #Must be unique in Heroku
-          heroku_email: "vitorsoares96@hotmail.com"
-          buildpack: https://github.com/heroku/heroku-buildpack-nodejs
-          procfile: "web: yarn prod:server"
-          branch: "test"
+      - uses: akhileshns/heroku-deploy@v3.12.12
+      - name: Running migrations
       - run: "heroku run --app typeorm-ddd-basic-start yarn prod:typeorm:migrate"
         env:
           HD_HOST: ${{secrets.HOST}}
