@@ -43,9 +43,9 @@ jobs:
       - name: Build
         run: yarn build
       - name: Deploy
-      - uses: akhileshns/heroku-deploy@v3.12.12
+        uses: akhileshns/heroku-deploy@v3.12.12
       - name: Running migrations
-      - run: "heroku run --app typeorm-ddd-basic-start yarn prod:typeorm:migrate"
+        run: "heroku run --app typeorm-ddd-basic-start yarn prod:typeorm:migrate"
         env:
           HD_HOST: ${{secrets.HOST}}
           HD_PG_PORT: ${{secrets.PG_PORT}}
