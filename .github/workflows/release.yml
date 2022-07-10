@@ -59,6 +59,7 @@ jobs:
           heroku_email: "vitorsoares96@hotmail.com"
           buildpack: https://github.com/heroku/heroku-buildpack-nodejs
           procfile: "web: yarn prod:server"
+      - run: "heroku run --app typeorm-ddd-basic-start yarn prod:typeorm:migrate"
         env:
           HD_HOST: ${{secrets.HOST}}
           HD_PG_PORT: ${{secrets.PG_PORT}}
