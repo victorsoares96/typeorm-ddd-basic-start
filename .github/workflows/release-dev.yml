@@ -1,14 +1,9 @@
 name: release
 
 on:
-  pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'LICENSE'
-      - '.editorconfig'
-      - '.eslintrc.json'
-      - '.prettier.config.js'
+  push:
+    branches:
+      - "dev"
 
 jobs:
   validate:
@@ -34,24 +29,9 @@ jobs:
         run: yarn type-check
       - name: Unit Testing
         run: yarn test:coverage
-
-  publish:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x]
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install dependencies
-        run: yarn --frozen-lockfile
       - name: Build
         run: yarn build
+      - name: Deploy
       - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
@@ -59,6 +39,7 @@ jobs:
           heroku_email: "vitorsoares96@hotmail.com"
           buildpack: https://github.com/heroku/heroku-buildpack-nodejs
           procfile: "web: yarn prod:server"
+          branch: "dev"
       - run: "heroku run --app typeorm-ddd-basic-start yarn prod:typeorm:migrate"
         env:
           HD_HOST: ${{secrets.HOST}}

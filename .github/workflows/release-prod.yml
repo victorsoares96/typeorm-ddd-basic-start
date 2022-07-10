@@ -1,0 +1,49 @@
+name: release
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+      - name: Formatting
+        run: yarn prettier:format
+      - name: Linting
+        run: yarn lint:fix
+      - name: Type Check
+        run: yarn type-check
+      - name: Unit Testing
+        run: yarn test:coverage
+      - name: Build
+        run: yarn build
+      - name: Deploy
+      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "typeorm-ddd-basic-start" #Must be unique in Heroku
+          heroku_email: "vitorsoares96@hotmail.com"
+          buildpack: https://github.com/heroku/heroku-buildpack-nodejs
+          procfile: "web: yarn prod:server"
+          branch: "master"
+      - run: "heroku run --app typeorm-ddd-basic-start yarn prod:typeorm:migrate"
+        env:
+          HD_HOST: ${{secrets.HOST}}
+          HD_PG_PORT: ${{secrets.PG_PORT}}
+          HD_USERNAME: ${{secrets.USERNAME}}
+          HD_PASSWORD: ${{secrets.PASSWORD}}
+          HD_DATABASE: ${{secrets.DATABASE}}
