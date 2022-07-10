@@ -55,7 +55,7 @@ jobs:
           buildpack: https://github.com/heroku/heroku-buildpack-nodejs
           procfile: "web: yarn prod:server"
           dontautocreate: true
-          branch: "main"
+          dontuseforce: true
       - name: Running migrations
         run: "heroku run --app typeorm-ddd-basic-start yarn prod:typeorm:migrate"
         env:
