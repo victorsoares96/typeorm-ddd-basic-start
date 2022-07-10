@@ -9,9 +9,6 @@ export function mockCustomValidator<
   name: string,
 ): jest.SpyInstance<boolean, [unknown, ValidationArguments]> {
   const storage = getMetadataStorage();
-  console.log(
-    storage.find(item => item.message === 'This permission is already exists.'),
-  );
   const metadatas = storage.getTargetValidationMetadatas(
     target,
     target.name,
@@ -23,7 +20,7 @@ export function mockCustomValidator<
       a.propertyName === property &&
       storage
         .getTargetValidatorConstraints(a.constraintCls)
-        .find(a => a.name === name)
+        .find(e => e.name === name)
     ) {
       return true;
     }

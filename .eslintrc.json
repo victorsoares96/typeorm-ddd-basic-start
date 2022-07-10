@@ -28,6 +28,7 @@
       }
     ],
     "import/no-cycle": "off",
-    "class-methods-use-this": "off"
+    "class-methods-use-this": "off",
+    "func-names": "off"
   }
 }

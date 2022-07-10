@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import uploadConfig from '@config/upload';
-import StorageProviderMethods from '../models/StorageProviderMethods';
+import { StorageProviderMethods } from '../models/StorageProviderMethods';
 
 export class DiskStorageProvider implements StorageProviderMethods {
   public async saveFile(file: string): Promise<string> {

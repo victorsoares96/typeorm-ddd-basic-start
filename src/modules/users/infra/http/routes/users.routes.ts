@@ -18,7 +18,7 @@ import { UsersController } from '../controllers/UsersController';
 export const usersRouter = Router();
 const usersController = new UsersController();
 
-const upload = multer(uploadConfig);
+const upload = multer(uploadConfig.multer);
 
 usersRouter.get(
   '/users',
