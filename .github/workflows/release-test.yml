@@ -22,11 +22,11 @@ jobs:
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
+          heroku_app_name: typeorm-ddd-basic-start
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
       - name: Add Heroku remote
-        run: heroku git:remote --app vixe
+        run: heroku git:remote --app typeorm-ddd-basic-start
       - name: Push to Heroku
         run: git push heroku ${{ github.head_ref }}:master --force
       - name: Running migrations
