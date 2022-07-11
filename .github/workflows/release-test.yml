@@ -21,19 +21,15 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{github.head_ref}}
-      - name: Heroku login credentials
-        run: |
-          cat > ~/.netrc <<EOF
-            machine api.heroku.com
-              login $HEROKU_EMAIL
-              password $HEROKU_API_KEY
-            machine git.heroku.com
-              login $HEROKU_EMAIL
-              password $HEROKU_API_KEY
-          EOF
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-          HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
+      - name: Deploy
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "typeorm-ddd-basic-start" #Must be unique in Heroku
+          heroku_email: "vitorsoares96@hotmail.com"
+          buildpack: https://github.com/heroku/heroku-buildpack-nodejs
+          procfile: "web: yarn prod:server"
+          justlogin: true
       - name: Add Heroku remote
         run: heroku git:remote --app typeorm-ddd-basic-start
       - name: Push to Heroku
