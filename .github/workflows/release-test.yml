@@ -31,7 +31,7 @@ jobs:
       - name: Show refs
         run: git show-ref
       - name: Push to Heroku
-        run: git push heroku HEAD:master --force
+        run: git push heroku master
       - name: Running migrations
         run: "heroku run --app typeorm-ddd-basic-start yarn prod:typeorm:migrate"
         env:
