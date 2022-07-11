@@ -52,10 +52,9 @@ jobs:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
           heroku_email: ${{secrets.HEROKU_EMAIL}}
-          procfile: "web: yarn prod:server"
           justlogin: true
       - name: Add Heroku remote
-        run: heroku git:remote --app=${{secrets.HEROKU_APP_NAME}}
+        run: heroku git:remote --app=typeorm-ddd-basic-start
       - name: Push to Heroku
         run: git push heroku ${{ github.head_ref }}:master --force
       - name: Running migrations
