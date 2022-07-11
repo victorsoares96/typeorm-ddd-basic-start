@@ -1,4 +1,4 @@
-name: release
+name: release production
 
 on:
   push:
@@ -7,18 +7,15 @@ on:
 
 jobs:
   validate:
+    name: "Validate"
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x]
 
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 16.x
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "16.x"
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Formatting
@@ -31,19 +28,28 @@ jobs:
         run: yarn test:coverage
       - name: Build
         run: yarn build
-      - name: Deploy
-      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+
+  publish:
+    name: "Publish"
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{github.head_ref}}
+      - name: Login to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "typeorm-ddd-basic-start" #Must be unique in Heroku
-          heroku_email: "vitorsoares96@hotmail.com"
-          buildpack: https://github.com/heroku/heroku-buildpack-nodejs
-          procfile: "web: yarn prod:server"
-          branch: "master"
-      - run: "heroku run --app typeorm-ddd-basic-start yarn prod:typeorm:migrate"
-        env:
-          HD_HOST: ${{secrets.HOST}}
-          HD_PG_PORT: ${{secrets.PG_PORT}}
-          HD_USERNAME: ${{secrets.USERNAME}}
-          HD_PASSWORD: ${{secrets.PASSWORD}}
-          HD_DATABASE: ${{secrets.DATABASE}}
+          heroku_app_name: ${{secrets.HEROKU_PROD_APP_NAME}}
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          justlogin: true
+      - name: Add Heroku remote
+        run: heroku git:remote --app ${{secrets.HEROKU_PROD_APP_NAME}}
+      - name: Push to Heroku
+        run: git push heroku ${{github.head_ref}}:master
+      - name: Running migrations
+        run: "heroku run --app ${{secrets.HEROKU_PROD_APP_NAME}} yarn prod:typeorm:migrate"
