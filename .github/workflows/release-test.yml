@@ -18,6 +18,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - run: git fetch
       - name: Login to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
@@ -27,7 +28,6 @@ jobs:
           justlogin: true
       - name: Add Heroku remote
         run: heroku git:remote --app typeorm-ddd-basic-start
-      - run: git fetch
       - name: Show refs
         run: git show-ref
       - name: Push to Heroku
