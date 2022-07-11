@@ -12,7 +12,7 @@
     "dev:typeorm": "NODE_ENV=development ts-node-dev -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "dev:typeorm:migrate": "NODE_ENV=development ts-node-dev -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run",
     "prod:typeorm": "NODE_ENV=production ts-node-dev -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
-    "prod:typeorm:migrate": "NODE_ENV=production ts-node-dev -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run",
+    "prod:typeorm:migrate": "NODE_ENV=production node ./node_modules/typeorm/cli.js migration:run",
     "seed:config": "ts-node ./node_modules/typeorm-seeding/dist/cli.js config",
     "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
     "schema:drop": "ts-node ./node_modules/typeorm/cli.js schema:drop",
