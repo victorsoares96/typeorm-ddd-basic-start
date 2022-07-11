@@ -35,6 +35,7 @@ jobs:
           HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
       - name: Add Heroku remote
         run: heroku git:remote --app typeorm-ddd-basic-start
+      - run: git show-ref
       - name: Push to Heroku
         run: git push heroku ${{ github.head_ref }}
       - name: Running migrations
