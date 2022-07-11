@@ -11,41 +11,13 @@ on:
       - '.prettier.config.js'
 
 jobs:
-  validate:
-    name: "Validate"
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: "16.x"
-      - name: Install dependencies
-        run: yarn --frozen-lockfile
-      - name: Formatting
-        run: yarn prettier:format
-      - name: Linting
-        run: yarn lint:fix
-      - name: Type Check
-        run: yarn type-check
-      - name: Unit Testing
-        run: yarn test:coverage
-
   deploy:
     name: "Deploy"
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: "16.x"
-      - name: Install dependencies
-        run: yarn --frozen-lockfile
-      - name: Build
-        run: yarn build
+      - name: Checkout repository
+        uses: actions/checkout@v3
       - name: Login to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
@@ -54,7 +26,7 @@ jobs:
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
       - name: Add Heroku remote
-        run: heroku git:remote --app=typeorm-ddd-basic-start
+        run: heroku git:remote --app typeorm-ddd-basic-start
       - name: Push to Heroku
         run: git push heroku ${{ github.head_ref }}:master --force
       - name: Running migrations
