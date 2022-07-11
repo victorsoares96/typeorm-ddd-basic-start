@@ -46,16 +46,18 @@ jobs:
         run: yarn --frozen-lockfile
       - name: Build
         run: yarn build
-      - name: Deploy
+      - name: Login to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "typeorm-ddd-basic-start" #Must be unique in Heroku
-          heroku_email: "vitorsoares96@hotmail.com"
-          buildpack: https://github.com/heroku/heroku-buildpack-nodejs
+          heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
           procfile: "web: yarn prod:server"
-          dontautocreate: true
-          dontuseforce: true
+          justlogin: true
+      - name: Add Heroku remote
+        run: heroku git:remote --app=${{secrets.HEROKU_APP_NAME}}
+      - name: Push to Heroku
+        run: git push heroku ${{ github.head_ref }}:master --force
       - name: Running migrations
         run: "heroku run --app typeorm-ddd-basic-start yarn prod:typeorm:migrate"
         env:
