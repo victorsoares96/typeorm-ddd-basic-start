@@ -1,14 +1,9 @@
 name: pull_request
 
 on:
-  pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'LICENSE'
-      - '.editorconfig'
-      - '.eslintrc.json'
-      - '.prettier.config.js'
+  push:
+    branches:
+      - "master"
 
 jobs:
   validate:
