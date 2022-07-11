@@ -26,7 +26,7 @@ jobs:
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
       - name: Add Heroku remote
-        run: heroku git:remote --app typeorm-ddd-basic-start
+        run: heroku git:remote --app vixe
       - name: Push to Heroku
         run: git push heroku ${{ github.head_ref }}:master --force
       - name: Running migrations
