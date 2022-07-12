@@ -1,4 +1,4 @@
-name: release production
+name: release staged
 
 on:
   pull_request:
