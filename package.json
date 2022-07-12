@@ -21,7 +21,8 @@
     "test:coverage": "jest",
     "prettier:format": "prettier --write .",
     "lint:fix": "eslint --fix ./src/ --ext .ts,.js,.json",
-    "type-check": "tsc -p tsconfig.json --noEmit"
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "get-db-credentials": "node ./scripts/get-db-credentials.js"
   },
   "dependencies": {
     "aws-sdk": "^2.1084.0",

@@ -45,23 +45,33 @@ jobs:
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: ${{secrets.HEROKU_DEV_APP_NAME}}
+          heroku_app_name: ${{env.HEROKU_APP_NAME}}
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
       - name: Create Heroku app
         if: github.event.action == 'opened'
         run: heroku apps:create ${{ env.HEROKU_APP_NAME }}
-      - name: Copy environment variables to Heroku app
+      - name: Set buildpacks
+        if: github.event.action == 'opened'
+        run: heroku buildpacks:add heroku/nodejs
+      - name: Set addons
+        if: github.event.action == 'opened'
+        run: heroku addons:create heroku-postgresql:hobby-dev
+      - name: Get Database Credentials
         if: github.event.action == 'opened'
         run: |
-          heroku config --shell --app=my-development-app > .env
-          cat .env | tr '\n' ' ' | xargs heroku config:set --app=${{ env.HEROKU_APP_NAME }}
+          heroku pg:credentials:url --app ${{ env.HEROKU_APP_NAME }} > database_credentials
+          | yarn get-db-credentials
+      - name: Copy database environment variables to Heroku app
+        if: github.event.action == 'opened'
+        run: |
+          cat database_credentials | xargs heroku config:set --app=${{ env.HEROKU_APP_NAME }}
       - name: Add Heroku remote
-        run: heroku git:remote --app ${{secrets.HEROKU_DEV_APP_NAME}}
+        run: heroku git:remote --app ${{env.HEROKU_APP_NAME}}
       - name: Push to Heroku
         run: git push heroku ${{github.head_ref}}:master
       - name: Running migrations
-        run: "heroku run --app ${{secrets.HEROKU_DEV_APP_NAME}} yarn prod:typeorm:migrate"
+        run: "heroku run --app ${{ env.HEROKU_APP_NAME }} yarn prod:typeorm:migrate"
       - name: Add comment to PR
         if: github.event.action == 'opened'
         run: |
