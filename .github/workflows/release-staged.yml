@@ -31,14 +31,11 @@ jobs:
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
       - name: Create File With Database Credentials
-        if: github.event.action == 'opened'
         run: heroku pg:credentials:url --app typeorm-ddd-basic-start > database_credentials
       - name: Handle File With Database Credentials to a valid format
         uses: actions/github-script@v6
         id: set-result
         with:
           script: |
-            const path = require('path')
             const script = require('./src/scripts/get_db_credentials.js')
-            console.log(script)
             await script()

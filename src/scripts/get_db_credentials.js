@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-(async () => {
+module.exports = async () => {
   const databaseCredentialsUrlPath = path.join(
     __dirname,
     '../../database_credentials',
@@ -52,4 +52,4 @@ const path = require('path');
     databaseCredentialsParsed,
     'utf8',
   );
-})();
+};
