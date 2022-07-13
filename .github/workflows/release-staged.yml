@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate
     env:
-      HEROKU_APP_NAME: typeorm-ddd-basic-start-${{ github.head_ref }}
+      HEROKU_APP_NAME: staged-${{ github.head_ref }}
 
     steps:
       - name: Checkout repository
