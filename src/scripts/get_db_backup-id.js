@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-(async () => {
+module.exports = async () => {
   const dbBackupInfoPath = path.join(__dirname, '../../db_backup_info');
 
   if (!fs.existsSync(dbBackupInfoPath)) {
@@ -18,5 +18,5 @@ const path = require('path');
 
   await fs.promises.unlink(dbBackupInfoPath);
 
-  await fs.promises.writeFile(dbBackupInfoPath, backupId, 'utf8');
-})();
+  return backupId;
+};
