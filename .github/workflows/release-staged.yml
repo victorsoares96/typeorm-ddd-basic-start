@@ -9,7 +9,7 @@ jobs:
     name: "Publish"
     runs-on: ubuntu-latest
     env:
-      HEROKU_APP_NAME: staged-${{ github.head_ref }}
+      HEROKU_APP_NAME: staged-${{ github.head_ref }}-${{ github.event.number }}
 
     steps:
       - name: Checkout repository
