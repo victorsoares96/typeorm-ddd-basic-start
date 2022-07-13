@@ -43,9 +43,9 @@ jobs:
         uses: actions/github-script@v6
         id: set-result
         with:
-          script: |
-            const script = require('./src/scripts/get_db_credentials.js')
-            await script()
+          script: return "Hello!"
+          result-encoding: string
+        run: yarn get-db-credentials
       - name: Copy database environment variables to Heroku app
         if: github.event.action == 'opened'
         run: |
