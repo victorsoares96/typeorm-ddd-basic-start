@@ -22,7 +22,8 @@
     "prettier:format": "prettier --write .",
     "lint:fix": "eslint --fix ./src/ --ext .ts,.js,.json",
     "type-check": "tsc -p tsconfig.json --noEmit",
-    "get-db-credentials": "node ./scripts/get-db-credentials.js"
+    "get-db-credentials": "node ./src/scripts/get-db-credentials.js",
+    "get_db_backup-id": "node ./src/scripts/get_db_backup-id.js"
   },
   "dependencies": {
     "aws-sdk": "^2.1084.0",
