@@ -2,7 +2,13 @@ name: release staged
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'LICENSE'
+      - '.editorconfig'
+      - '.eslintrc.json'
+      - '.prettier.config.js'
 
 jobs:
   publish:
@@ -24,59 +30,15 @@ jobs:
           heroku_app_name: ${{env.HEROKU_APP_NAME}}
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
-      - name: Create Heroku app
-        if: github.event.action == 'opened'
-        run: heroku apps:create ${{ env.HEROKU_APP_NAME }}
-      - name: Set buildpacks
-        if: github.event.action == 'opened'
-        run: heroku buildpacks:add heroku/nodejs
-      - name: Create Database
-        if: github.event.action == 'opened'
-        run: heroku addons:create heroku-postgresql:hobby-dev
-      - name: Waiting Database Provision
-        if: github.event.action == 'opened'
-        run: heroku pg:wait --app ${{ env.HEROKU_APP_NAME }}
       - name: Create File With Database Credentials
         if: github.event.action == 'opened'
-        run: heroku pg:credentials:url --app ${{ env.HEROKU_APP_NAME }} > database_credentials
+        run: heroku pg:credentials:url --app typeorm-ddd-basic-start > database_credentials
       - name: Handle File With Database Credentials to a valid format
         uses: actions/github-script@v6
         id: set-result
         with:
           script: |
+            const path = require('path')
             const script = require('./src/scripts/get_db_credentials.js')
+            console.log(script)
             await script()
-      - name: Copy database environment variables to Heroku app
-        if: github.event.action == 'opened'
-        run: |
-          cat database_credentials | xargs heroku config:set --app=${{ env.HEROKU_APP_NAME }}
-      - name: Enter maintenance mode
-        run: |
-          heroku maintenance:on --app typeorm-ddd-basic-start-dev
-      - name: Create Dev Database Backup
-        run: heroku pg:backups:capture --app typeorm-ddd-basic-start-dev
-      - name: Get Dev Database Backup ID
-        run: heroku pg:backups:info --app typeorm-ddd-basic-start-dev > db_backup_info | yarn get_db_backup-id
-      - name: Get BD ID
-        id: get_bd_id
-        run: echo "::set-output name=DB_BACKUP_ID::$(cat db_backup_info)
-      - name: Clone Dev Database to ${{ env.HEROKU_APP_NAME }} Database
-        run: heroku pg:backups:restore typeorm-ddd-basic-start-dev::${{ steps.get_bd_id.outputs.DB_BACKUP_ID }} DATABASE_URL --app ${{ env.HEROKU_APP_NAME }} --confirm ${{ env.HEROKU_APP_NAME }}
-      - name: Exit maintenance mode
-        run: |
-          heroku maintenance:off --app typeorm-ddd-basic-start-dev
-      - name: Add Heroku remote
-        run: heroku git:remote --app ${{env.HEROKU_APP_NAME}}
-      - name: Push to Heroku
-        run: git push heroku ${{github.head_ref}}:master
-      - name: Running migrations
-        run: "heroku run --app ${{ env.HEROKU_APP_NAME }} yarn prod:typeorm:migrate"
-      - name: Add comment to PR
-        if: github.event.action == 'opened'
-        run: |
-          gh pr comment ${{ github.event.number }} --body '[Heroku app](https://dashboard.heroku.com/apps/${{ env.HEROKU_APP_NAME }}): https://${{ env.HEROKU_APP_NAME }}.herokuapp.com'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Destroy Heroku app
-        if: github.event.action == 'closed'
-        run: heroku apps:destroy --app=${{ env.HEROKU_APP_NAME }} --confirm=${{ env.HEROKU_APP_NAME }}
