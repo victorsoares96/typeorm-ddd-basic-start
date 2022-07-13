@@ -75,9 +75,6 @@ jobs:
         run: heroku pg:backups:capture --app typeorm-ddd-basic-start-dev
       - name: Get Dev Database Backup ID
         run: heroku pg:backups:info --app typeorm-ddd-basic-start-dev > db_backup_info | yarn get_db_backup-id
-      - name: Create Backup ID Env
-        env:
-          DB_BACKUP_ID: cat db_backup_info
       - name: Clone Dev Database to ${{ env.HEROKU_APP_NAME }} Database
         run: heroku pg:backups:restore typeorm-ddd-basic-start-dev::b005 DATABASE_URL --app ${{ env.HEROKU_APP_NAME }} --confirm ${{ env.HEROKU_APP_NAME }}
       - name: Exit maintenance mode
