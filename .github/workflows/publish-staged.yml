@@ -107,6 +107,7 @@ jobs:
   release:
     name: "Deploy Release"
     runs-on: ubuntu-latest
+    needs: cloneDatabase
     env:
       HEROKU_APP_NAME: staged-${{ github.head_ref }}-${{ github.event.number }}
 
