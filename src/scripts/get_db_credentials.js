@@ -52,4 +52,6 @@ module.exports = async () => {
     databaseCredentialsParsed,
     'utf8',
   );
+
+  return databaseCredentialsParsed;
 };
