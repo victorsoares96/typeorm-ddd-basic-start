@@ -9,7 +9,7 @@ jobs:
     name: "Create Application"
     runs-on: ubuntu-latest
     env:
-      HEROKU_APP_NAME: staged-${{ github.head_ref }}-${{ github.event.number }}
+      HEROKU_APP_NAME: typeorm-ddd-basic-start-${{ github.event.number }}
 
     steps:
       - name: Login to Heroku
@@ -26,7 +26,7 @@ jobs:
 
       - name: Set buildpacks
         if: github.event.action == 'opened'
-        run: heroku buildpacks:add heroku/nodejs
+        run: heroku buildpacks:add heroku/nodejs --app ${{ env.HEROKU_APP_NAME }}
 
   createDatabase:
     name: "Create Database"
