@@ -24,6 +24,18 @@ jobs:
           heroku_app_name: ${{env.HEROKU_APP_NAME}}
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
+      - name: Create Heroku app
+        if: github.event.action == 'opened'
+        run: heroku apps:create ${{ env.HEROKU_APP_NAME }}
+      - name: Set buildpacks
+        if: github.event.action == 'opened'
+        run: heroku buildpacks:add heroku/nodejs
+      - name: Create Database
+        if: github.event.action == 'opened'
+        run: heroku addons:create heroku-postgresql:hobby-dev
+      - name: Waiting Database Provision
+        if: github.event.action == 'opened'
+        run: heroku pg:wait --app ${{ env.HEROKU_APP_NAME }}
       - name: Create File With Database Credentials
         run: heroku pg:credentials:url --app ${{ env.HEROKU_APP_NAME }} > database_credentials
       - name: Handle Database Credentials File to a valid format
