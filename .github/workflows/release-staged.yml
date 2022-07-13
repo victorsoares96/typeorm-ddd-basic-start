@@ -76,7 +76,7 @@ jobs:
       - name: Get Dev Database Backup ID
         run: heroku pg:backups:info --app typeorm-ddd-basic-start-dev > db_backup_info | yarn get_db_backup-id
       - name: Clone Dev Database to ${{ env.HEROKU_APP_NAME }} Database
-        run: heroku pg:backups:restore typeorm-ddd-basic-start-dev::${{echo "$(cat db_backup_info)"}} DATABASE_URL --app ${{ env.HEROKU_APP_NAME }} --confirm ${{ env.HEROKU_APP_NAME }}
+        run: db_backup_id=`cat db_backup_info` | heroku pg:backups:restore typeorm-ddd-basic-start-dev::${{db_backup_id}} DATABASE_URL --app ${{ env.HEROKU_APP_NAME }} --confirm ${{ env.HEROKU_APP_NAME }}
       - name: Exit maintenance mode
         run: |
           heroku maintenance:off --app typeorm-ddd-basic-start-dev
