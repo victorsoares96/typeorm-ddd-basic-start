@@ -34,6 +34,7 @@ jobs:
         if: github.event.action == 'opened'
         run: heroku addons:create heroku-postgresql:hobby-dev
       - name: Waiting Database Provision
+        if: github.event.action == 'opened'
         run: heroku pg:wait --app ${{ env.HEROKU_APP_NAME }}
       - name: Create File With Database Credentials
         if: github.event.action == 'opened'
