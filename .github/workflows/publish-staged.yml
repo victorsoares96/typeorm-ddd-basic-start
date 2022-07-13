@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: createApplication
     env:
-      HEROKU_APP_NAME: staged-${{ github.head_ref }}-${{ github.event.number }}
+      HEROKU_APP_NAME: typeorm-ddd-basic-start-${{ github.event.number }}
 
     steps:
       - name: Login to Heroku
@@ -46,7 +46,7 @@ jobs:
 
       - name: Create Database
         if: github.event.action == 'opened'
-        run: heroku addons:create heroku-postgresql:hobby-dev
+        run: heroku addons:create heroku-postgresql:hobby-dev --app ${{ env.HEROKU_APP_NAME }}
 
       - name: Waiting Database Provision
         if: github.event.action == 'opened'
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: createDatabase
     env:
-      HEROKU_APP_NAME: staged-${{ github.head_ref }}-${{ github.event.number }}
+      HEROKU_APP_NAME: typeorm-ddd-basic-start-${{ github.event.number }}
 
     steps:
       - name: Login to Heroku
@@ -109,7 +109,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: cloneDatabase
     env:
-      HEROKU_APP_NAME: staged-${{ github.head_ref }}-${{ github.event.number }}
+      HEROKU_APP_NAME: typeorm-ddd-basic-start-${{ github.event.number }}
 
     steps:
       - name: Checkout repository
