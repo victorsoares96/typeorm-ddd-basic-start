@@ -101,6 +101,9 @@ jobs:
       - name: Clone Dev Database to ${{ env.HEROKU_APP_NAME }} Database
         run: heroku pg:backups:restore typeorm-ddd-basic-start-dev::${{ steps.get_db_backup-id.outputs.results }} DATABASE_URL --app ${{ env.HEROKU_APP_NAME }} --confirm ${{ env.HEROKU_APP_NAME }}
 
+      - name: Delete Dev Database Backup Generated
+        run: heroku pg:backups:delete ${{ steps.get_db_backup-id.outputs.results }} --app typeorm-ddd-basic-start-dev --confirm typeorm-ddd-basic-start-dev
+
   release:
     name: "Deploy Release"
     runs-on: ubuntu-latest
