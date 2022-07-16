@@ -8,7 +8,7 @@ on:
     types: [synchronize]
 
 env:
-  STAGED_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-${{github.head_ref}}
+  STAGED_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-${{github.event.number}}
   DEV_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-dev
 
 jobs:
@@ -68,5 +68,18 @@ jobs:
       - name: Mark as Published
         run: |
           gh pr comment ${{ github.event.number }} --body 'Republish Successfully: https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label published
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publishFailed:
+    name: "Publish failed"
+    runs-on: ubuntu-latest
+    needs: publish
+    if: always() && github.event.label.name != 'skip:publish' && needs.publish.result == 'failure'
+
+    steps:
+      - name: Mark as published failed
+        run: |
+          gh pr comment ${{ github.event.number }} --body 'Republish failed: https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label sync:publish:error
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
