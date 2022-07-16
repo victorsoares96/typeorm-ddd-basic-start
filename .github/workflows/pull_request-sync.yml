@@ -66,6 +66,9 @@ jobs:
       - name: Add Heroku remote
         run: heroku git:remote --app ${{env.STAGED_APP_NAME}}
 
+      - name: Pull from Heroku
+        run: git pull heroku master
+
       - name: Commit to Heroku
         run: git config user.email ${{secrets.HEROKU_EMAIL}} && git config user.name "Release Bot" && git add -A && git commit --allow-empty -m "Deploy to Heroku"
 
