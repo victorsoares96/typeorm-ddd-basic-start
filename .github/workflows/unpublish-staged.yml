@@ -9,7 +9,6 @@ on:
 
 env:
   STAGED_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-${{github.event.number}}
-  DEV_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-dev
 
 jobs:
   destroyApplication:
