@@ -50,6 +50,7 @@ jobs:
     name: "Delete Branch"
     runs-on: ubuntu-latest
     needs: destroyApplication
+    if: always()
 
     steps:
       - name: Checkout repository
