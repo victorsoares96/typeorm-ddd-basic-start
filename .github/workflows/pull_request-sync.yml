@@ -55,6 +55,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
 
+      - name: Get Pull Request Name
+        run: echo ${{ github.event.pull_request.head.ref }} && echo ${{ github.head_ref == 'renovate/*' }} && echo ${{ github.head_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Login to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
