@@ -56,7 +56,7 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Get Pull Request Name
-        run: echo ${{ github.event.pull_request.head.ref }} && echo ${{ contains(github.head_ref, 'renovate/') }} && echo ${{ github.head_ref }}
+        run: echo (!contains(github.event.pull_request.labels.*.name, 'skip:publish')) || (!contains(github.head_ref, 'renovate/'))
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
