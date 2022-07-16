@@ -26,11 +26,8 @@ jobs:
       - name: Install dependencies
         run: yarn --frozen-lockfile
 
-      - name: Formatting
-        run: yarn prettier:format
-
       - name: Linting
-        run: yarn lint:fix
+        run: yarn lint
 
       - name: Type Check
         run: yarn type-check
@@ -42,8 +39,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}} # not required for public repos
-          files: ./coverage/clover.xml
-          name: ${{env.STAGED_APP_NAME}}
+          directory: coverage
           fail_ci_if_error: true
 
       - name: Build

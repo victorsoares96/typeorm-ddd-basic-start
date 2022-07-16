@@ -20,6 +20,7 @@
     "test": "jest --watch",
     "test:coverage": "jest",
     "prettier:format": "prettier --write .",
+    "lint": "eslint ./src/ --ext .ts,.js,.json",
     "lint:fix": "eslint --fix ./src/ --ext .ts,.js,.json",
     "type-check": "tsc -p tsconfig.json --noEmit",
     "get-db-credentials": "node ./src/scripts/get-db-credentials.js",
