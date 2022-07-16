@@ -3,7 +3,7 @@ name: Publish Staged
 on:
   pull_request:
     branches-ignore:
-      - 'renovate/'
+      - 'renovate/*'
     types: [opened, reopened]
 
 env:

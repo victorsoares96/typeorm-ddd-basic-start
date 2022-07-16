@@ -3,7 +3,7 @@ name: Pull Request Synchronize
 on:
   pull_request:
     branches-ignore:
-      - 'renovate/'
+      - 'renovate/*'
     types: [synchronize]
 
 env:
