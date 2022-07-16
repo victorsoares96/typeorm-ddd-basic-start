@@ -46,7 +46,7 @@ jobs:
   publish:
     name: "Publish"
     runs-on: ubuntu-latest
-    if: (!contains(github.head_ref, 'renovate/'))
+    if: (!contains(github.event.pull_request.labels.*.name, 'skip:publish')) || (!contains(github.head_ref, 'renovate/'))
 
     steps:
       - name: Checkout repository
