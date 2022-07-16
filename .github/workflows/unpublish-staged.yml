@@ -40,6 +40,11 @@ jobs:
         run: |
           gh pr edit --remove-label published
 
+      - name: Delete branch
+        run: git push origin --delete ${{github.head_ref}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Reopen and labeled if destroy failed
         if: failure() && steps.destroy-app.outcome != 'success'
         run: |
