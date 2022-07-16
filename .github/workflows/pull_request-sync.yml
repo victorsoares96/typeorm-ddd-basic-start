@@ -9,7 +9,6 @@ on:
 
 env:
   STAGED_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-${{github.event.number}}
-  DEV_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-dev
 
 jobs:
   validate:
@@ -37,15 +36,15 @@ jobs:
         run: yarn type-check
 
       - name: Unit Testing
+        run: yarn test:coverage
+
+      - name: Upload Coverage
         uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}} # not required for public repos
           files: ./coverage1.xml,./coverage2.xml # optional
-          flags: unittests # optional
-          name: codecov-umbrella # optional
-          fail_ci_if_error: true # optional (default = false)
-          verbose: true # optional (default = false)
-        run: yarn test:coverage
+          name: ${{env.STAGED_APP_NAME}}
+          fail_ci_if_error: true
 
       - name: Build
         run: yarn build
