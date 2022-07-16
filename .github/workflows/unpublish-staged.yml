@@ -26,11 +26,14 @@ jobs:
           justlogin: true
 
       - name: Destroy Heroku app
+        id: destroy-app
         run: heroku apps:destroy --app=${{env.STAGED_APP_NAME}} --confirm=${{env.STAGED_APP_NAME}}
 
       - name: Add comment to PR
+        if: failure() && steps.destroy-app.outcome != 'success'
         run: |
-          gh pr comment ${{ github.event.number }} --body 'Destroyed Successfully: [Heroku app](https://dashboard.heroku.com/apps/${{env.STAGED_APP_NAME}}): https://${{env.STAGED_APP_NAME}}.herokuapp.com'
+          gh pr reopen ${{ github.event.number }} --comment 'Error Destroy: [Heroku app](https://dashboard.heroku.com/apps/${{env.STAGED_APP_NAME}}): https://${{env.STAGED_APP_NAME}}.herokuapp.com'
+          | gh pr edit --add-label unpublish error
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

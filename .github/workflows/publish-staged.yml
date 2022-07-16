@@ -129,5 +129,6 @@ jobs:
       - name: Add comment to PR
         run: |
           gh pr comment ${{ github.event.number }} --body '[Heroku app](https://dashboard.heroku.com/apps/${{env.STAGED_APP_NAME}}): https://${{env.STAGED_APP_NAME}}.herokuapp.com'
+          | gh pr edit --add-label published
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
