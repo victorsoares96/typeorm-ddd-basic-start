@@ -2,8 +2,6 @@ name: Unpublish Staged
 
 on:
   pull_request:
-    branches-ignore:
-      - 'renovate/*'
     types: [closed]
 
 env:
@@ -13,7 +11,7 @@ jobs:
   destroyApplication:
     name: "Destroy Application"
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip:publish') }}
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip:publish') && !contains(github.head_ref, 'renovate/') }}
 
     steps:
       - name: Checkout repository
@@ -41,15 +39,27 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Delete branch
-        run: git push origin --delete ${{github.head_ref}}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Reopen and labeled if destroy failed
         if: failure() && steps.destroy-app.outcome != 'success'
         run: |
           gh pr reopen ${{ github.event.number }} --comment 'Error Destroy: https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label unpublish:error
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deleteBranch:
+    name: "Delete Branch"
+    runs-on: ubuntu-latest
+    needs: destroyApplication
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Delete branch
+        run: git push origin --delete ${{github.head_ref}}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
