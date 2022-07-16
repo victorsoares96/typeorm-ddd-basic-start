@@ -2,8 +2,6 @@ name: Publish Staged
 
 on:
   pull_request:
-    branches-ignore:
-      - 'renovate/'
     types: [opened, reopened]
 
 env:
@@ -49,7 +47,7 @@ jobs:
     name: "Create Application"
     runs-on: ubuntu-latest
     needs: validate
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip:publish') }}
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip:publish') && github.event.pull_request.base.ref != 'renovate/*' }}
 
     steps:
       - name: Login to Heroku

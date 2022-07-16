@@ -3,7 +3,7 @@ name: Unpublish Staged
 on:
   pull_request:
     branches-ignore:
-      - 'renovate/'
+      - 'renovate/*'
     types: [closed]
 
 env:
