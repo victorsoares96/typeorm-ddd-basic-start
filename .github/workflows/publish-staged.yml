@@ -155,7 +155,7 @@ jobs:
     name: "Publish failed"
     runs-on: ubuntu-latest
     needs: publish
-    if: always() && contains(github.event.pull_request.labels.*.name, 'skip:publish') && needs.publish.result == 'failure'
+    if: always() && !contains(github.event.pull_request.labels.*.name, 'skip:publish') && needs.publish.result == 'failure'
 
     steps:
       - name: Checkout repository

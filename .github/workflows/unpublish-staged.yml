@@ -15,6 +15,7 @@ jobs:
   destroyApplication:
     name: "Destroy Application"
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip:publish') }}
 
     steps:
       - name: Checkout repository
@@ -40,7 +41,7 @@ jobs:
         run: |
           gh pr edit --remove-label published
 
-      - name: Reopen and label if destroy failed
+      - name: Reopen and labeled if destroy failed
         if: failure() && steps.destroy-app.outcome != 'success'
         run: |
           gh pr reopen ${{ github.event.number }} --comment 'Error Destroy: https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label unpublish:error
