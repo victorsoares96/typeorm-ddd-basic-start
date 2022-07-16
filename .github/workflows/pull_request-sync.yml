@@ -2,9 +2,6 @@ name: Pull Request Synchronize
 
 on:
   pull_request:
-    branches-ignore:
-      - master
-      - dev
     types: [synchronize]
 
 env:
