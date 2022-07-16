@@ -139,3 +139,29 @@ jobs:
           gh pr comment ${{ github.event.number }} --body '[Heroku app](https://dashboard.heroku.com/apps/${{env.STAGED_APP_NAME}}): https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label published
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publishFailed:
+    name: "Publish failed"
+    runs-on: ubuntu-latest
+    needs: publish
+    if: always() && github.event.label.name != 'skip:publish' && needs.publish.result == 'failure'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Mark as publish failed
+        run: |
+          gh pr comment ${{ github.event.number }} --body 'Republish failed: https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label publish:error
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove published label
+        if: github.event.label.name == 'published'
+        run: |
+          gh pr edit --remove-label published
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

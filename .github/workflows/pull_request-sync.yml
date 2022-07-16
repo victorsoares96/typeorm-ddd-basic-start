@@ -84,8 +84,15 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
 
-      - name: Mark as published failed
+      - name: Mark as publish failed
         run: |
           gh pr comment ${{ github.event.number }} --body 'Republish failed: https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label sync:publish:error
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove published label
+        if: github.event.label.name == 'published'
+        run: |
+          gh pr edit --remove-label published
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
