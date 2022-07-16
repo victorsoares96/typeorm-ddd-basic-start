@@ -66,14 +66,8 @@ jobs:
       - name: Add Heroku remote
         run: heroku git:remote --app ${{env.DEV_APP_NAME}}
 
-      - name: Pull from Heroku
-        run: git pull heroku master
-
-      - name: Commit to Heroku
-        run: git config user.email ${{secrets.HEROKU_EMAIL}} && git config user.name "Release Bot" && git add -A && git commit -m "Deploy to Heroku"
-
       - name: Push to Heroku
-        run: git push heroku ${{github.head_ref}}:master
+        run: git push heroku ${{github.head_ref}}:master --force
 
       - name: Running migrations
         run: "heroku run --app ${{env.DEV_APP_NAME}} yarn prod:typeorm:migrate"

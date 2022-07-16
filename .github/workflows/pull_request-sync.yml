@@ -2,9 +2,6 @@ name: Pull Request Synchronize
 
 on:
   pull_request:
-    branches-ignore:
-      - master
-      - dev
     types: [synchronize]
 
 env:
@@ -69,14 +66,18 @@ jobs:
       - name: Add Heroku remote
         run: heroku git:remote --app ${{env.STAGED_APP_NAME}}
 
-      - name: Commit to Heroku
-        run: git config user.email ${{secrets.HEROKU_EMAIL}} && git config user.name "Release Bot" && git add -A && git commit -m "Deploy to Heroku"
-
       - name: Push to Heroku
-        run: git push heroku ${{github.head_ref}}:master
+        run: git push heroku ${{github.head_ref}}:master --force
 
       - name: Running migrations
         run: "heroku run --app ${{env.STAGED_APP_NAME}} yarn prod:typeorm:migrate"
+
+      - name: Remove publish errors label
+        if: ${{contains(github.event.pull_request.labels.*.name, 'sync:publish:error')}}
+        run: |
+          gh pr edit --remove-label sync:publish:error
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Mark as Published
         run: |
