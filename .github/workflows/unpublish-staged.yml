@@ -39,6 +39,8 @@ jobs:
         if: ${{contains(github.event.pull_request.labels.*.name, 'published')}}
         run: |
           gh pr edit --remove-label published
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete branch
         run: git push origin --delete ${{github.head_ref}}
