@@ -23,11 +23,9 @@ jobs:
           justlogin: true
 
       - name: Create Heroku app
-        if: github.event.action == 'opened'
         run: heroku apps:create ${{env.STAGED_APP_NAME}}
 
       - name: Set buildpacks
-        if: github.event.action == 'opened'
         run: heroku buildpacks:add heroku/nodejs --app ${{env.STAGED_APP_NAME}}
 
   createDatabase:
@@ -51,11 +49,9 @@ jobs:
           justlogin: true
 
       - name: Create Database
-        if: github.event.action == 'opened'
         run: heroku addons:create heroku-postgresql:hobby-dev --app ${{env.STAGED_APP_NAME}}
 
       - name: Waiting Database Provision
-        if: github.event.action == 'opened'
         run: heroku pg:wait --app ${{env.STAGED_APP_NAME}}
 
       - name: Create File With Database Credentials
