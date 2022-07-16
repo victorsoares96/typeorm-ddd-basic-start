@@ -38,7 +38,7 @@ jobs:
       - name: Mark as Unpublished
         if: failure() && steps.destroy-app.outcome != 'success'
         run: |
-          gh pr reopen ${{ github.event.number }} --comment 'Error Destroy: [Heroku app](https://dashboard.heroku.com/apps/${{env.STAGED_APP_NAME}}): https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label unpublish error
+          gh pr reopen ${{ github.event.number }} --comment 'Error Destroy: [Heroku app](https://dashboard.heroku.com/apps/${{env.STAGED_APP_NAME}}): https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label unpublish:error
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
