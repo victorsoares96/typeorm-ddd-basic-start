@@ -25,8 +25,6 @@ import { permissionsRouter } from '@modules/permissions/infra/http/routes/permis
 
 import errorHandler from './middlewares/errorHandler';
 
-// test
-
 class App {
   public express: express.Application;
 
