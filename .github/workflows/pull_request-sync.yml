@@ -42,7 +42,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{secrets.CODECOV_TOKEN}} # not required for public repos
-          files: ./coverage1.xml,./coverage2.xml # optional
+          files: ./coverage/clover.xml
           name: ${{env.STAGED_APP_NAME}}
           fail_ci_if_error: true
 
