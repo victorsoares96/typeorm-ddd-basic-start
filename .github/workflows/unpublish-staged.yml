@@ -36,7 +36,7 @@ jobs:
         run: heroku apps:destroy --app=${{env.STAGED_APP_NAME}} --confirm=${{env.STAGED_APP_NAME}}
 
       - name: Remove published label
-        if: ${{github.event.label.name == 'published'}}
+        if: ${{contains(github.event.pull_request.labels.*.name, 'published')}}
         run: |
           gh pr edit --remove-label published
 
