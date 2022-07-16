@@ -2,9 +2,6 @@ name: Publish Staged
 
 on:
   pull_request:
-    branches-ignore:
-      - master
-      - dev
     types: [opened, reopened]
 
 env:

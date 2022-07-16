@@ -2,9 +2,6 @@ name: Unpublish Staged
 
 on:
   pull_request:
-    branches-ignore:
-      - master
-      - dev
     types: [closed]
 
 env:
