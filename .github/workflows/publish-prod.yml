@@ -67,7 +67,7 @@ jobs:
         run: heroku git:remote --app ${{env.PROD_APP_NAME}}
 
       - name: Push to Heroku
-        run: git push heroku ${{github.head_ref}}:master --force
+        run: git push heroku master:master --force
 
       - name: Running migrations
         run: "heroku run --app ${{env.PROD_APP_NAME}} yarn prod:typeorm:migrate"
