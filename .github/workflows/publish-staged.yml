@@ -5,7 +5,8 @@ on:
     types: [opened, reopened]
 
 env:
-  APP_NAME: ${{secrets.HEROKU_APP_NAME}}-${{ github.event.number }}
+  STAGED_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-${{github.event.number}}
+  DEV_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-dev
 
 jobs:
   createApplication:
@@ -17,17 +18,17 @@ jobs:
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: ${{env.APP_NAME}}
+          heroku_app_name: ${{env.STAGED_APP_NAME}}
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
 
       - name: Create Heroku app
         if: github.event.action == 'opened'
-        run: heroku apps:create ${{ env.APP_NAME }}
+        run: heroku apps:create ${{env.STAGED_APP_NAME}}
 
       - name: Set buildpacks
         if: github.event.action == 'opened'
-        run: heroku buildpacks:add heroku/nodejs --app ${{ env.APP_NAME }}
+        run: heroku buildpacks:add heroku/nodejs --app ${{env.STAGED_APP_NAME}}
 
   createDatabase:
     name: "Create Database"
@@ -45,20 +46,20 @@ jobs:
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: ${{env.APP_NAME}}
+          heroku_app_name: ${{env.STAGED_APP_NAME}}
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
 
       - name: Create Database
         if: github.event.action == 'opened'
-        run: heroku addons:create heroku-postgresql:hobby-dev --app ${{ env.APP_NAME }}
+        run: heroku addons:create heroku-postgresql:hobby-dev --app ${{env.STAGED_APP_NAME}}
 
       - name: Waiting Database Provision
         if: github.event.action == 'opened'
-        run: heroku pg:wait --app ${{ env.APP_NAME }}
+        run: heroku pg:wait --app ${{env.STAGED_APP_NAME}}
 
       - name: Create File With Database Credentials
-        run: heroku pg:credentials:url --app ${{ env.APP_NAME }} > database_credentials
+        run: heroku pg:credentials:url --app ${{env.STAGED_APP_NAME}} > database_credentials
 
       - name: Handle Database Credentials File to a valid format
         uses: actions/github-script@v6
@@ -69,46 +70,9 @@ jobs:
 
       - name: Copy database environment variables to Heroku app
         run: |
-          cat database_credentials | xargs heroku config:set --app=${{ env.APP_NAME }}
-
-  cloneDatabase:
-    name: "Clone Database"
-    runs-on: ubuntu-latest
-    needs: createDatabase
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-
-      - name: Login to Heroku
-        uses: akhileshns/heroku-deploy@v3.12.12
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: ${{env.APP_NAME}}
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
-          justlogin: true
-
-      - name: Create Dev Database Backup
-        run: heroku pg:backups:capture --app typeorm-ddd-basic-start-dev
-
-      - name: Create file with dev database backup info
-        run: heroku pg:backups:info --app typeorm-ddd-basic-start-dev > db_backup_info
-
-      - name: Get dev database backup id
-        uses: actions/github-script@v6
-        id: get_db_backup-id
-        with:
-          script: |
-            const script = require('./src/scripts/get_db_backup-id.js')
-            const backupId = await script()
-            return backupId
-          result-encoding: string
-
-      - name: Clone Dev Database to ${{ env.APP_NAME }} Database
-        run: heroku pg:backups:restore typeorm-ddd-basic-start-dev::${{ steps.get_db_backup-id.outputs.results }} DATABASE_URL --app ${{ env.HEROKU_APP_NAME }} --confirm ${{ env.HEROKU_APP_NAME }}
+          cat database_credentials | xargs heroku config:set --app=${{env.STAGED_APP_NAME}}
+      - name: Copy Dev Database Data to Staged Database
+        run: heroku pg:copy ${{env.DEV_APP_NAME}}::DATABASE DATABASE --app ${{env.STAGED_APP_NAME}} --confirm ${{env.STAGED_APP_NAME}}
 
   release:
     name: "Release"
@@ -126,21 +90,21 @@ jobs:
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: ${{env.APP_NAME}}
+          heroku_app_name: ${{env.STAGED_APP_NAME}}
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
 
       - name: Add Heroku remote
-        run: heroku git:remote --app ${{env.APP_NAME}}
+        run: heroku git:remote --app ${{env.STAGED_APP_NAME}}
 
       - name: Push to Heroku
         run: git push heroku ${{github.head_ref}}:master
 
       - name: Running migrations
-        run: "heroku run --app ${{ env.APP_NAME }} yarn prod:typeorm:migrate"
+        run: "heroku run --app ${{env.STAGED_APP_NAME}} yarn prod:typeorm:migrate"
 
       - name: Add comment to PR
         run: |
-          gh pr comment ${{ github.event.number }} --body '[Heroku app](https://dashboard.heroku.com/apps/${{ env.HEROKU_APP_NAME }}): https://${{ env.HEROKU_APP_NAME }}.herokuapp.com'
+          gh pr comment ${{ github.event.number }} --body '[Heroku app](https://dashboard.heroku.com/apps/${{env.STAGED_APP_NAME}}): https://${{env.STAGED_APP_NAME}}.herokuapp.com'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
