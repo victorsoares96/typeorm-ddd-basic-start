@@ -47,7 +47,7 @@ jobs:
     name: "Create Application"
     runs-on: ubuntu-latest
     needs: validate
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip:publish') && github.event.pull_request.base.ref != 'renovate/*' }}
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip:publish') && !contains(github.head_ref, 'renovate/') }}
 
     steps:
       - name: Login to Heroku
