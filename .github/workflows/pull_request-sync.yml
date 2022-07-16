@@ -78,6 +78,12 @@ jobs:
     if: always() && github.event.label.name != 'skip:publish' && needs.publish.result == 'failure'
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
       - name: Mark as published failed
         run: |
           gh pr comment ${{ github.event.number }} --body 'Republish failed: https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label sync:publish:error
