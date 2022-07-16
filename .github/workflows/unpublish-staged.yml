@@ -1,0 +1,56 @@
+name: Unpublish Staged
+
+on:
+  pull_request:
+    branches-ignore:
+      - master
+      - dev
+    types: [closed]
+
+env:
+  STAGED_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-${{github.event.number}}
+
+jobs:
+  destroyApplication:
+    name: "Destroy Application"
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip:publish') }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Login to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: ${{env.STAGED_APP_NAME}}
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          justlogin: true
+
+      - name: Destroy Heroku app
+        id: destroy-app
+        run: heroku apps:destroy --app=${{env.STAGED_APP_NAME}} --confirm=${{env.STAGED_APP_NAME}}
+
+      - name: Remove published label
+        if: ${{contains(github.event.pull_request.labels.*.name, 'published')}}
+        run: |
+          gh pr edit --remove-label published
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete branch
+        run: git push origin --delete ${{github.head_ref}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Reopen and labeled if destroy failed
+        if: failure() && steps.destroy-app.outcome != 'success'
+        run: |
+          gh pr reopen ${{ github.event.number }} --comment 'Error Destroy: https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label unpublish:error
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

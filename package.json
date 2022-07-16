@@ -10,16 +10,21 @@
     "dev:server": "NODE_ENV=development ts-node-dev -r tsconfig-paths/register --inspect --transpile-only --ignore-watch node_modules src/shared/infra/http/server.ts",
     "ts-node": "ts-node src/shared/infra/http/server.ts",
     "dev:typeorm": "NODE_ENV=development ts-node-dev -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "dev:typeorm:migrate": "NODE_ENV=development ts-node-dev -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run",
     "prod:typeorm": "NODE_ENV=production ts-node-dev -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
+    "prod:typeorm:migrate": "NODE_ENV=production node ./node_modules/typeorm/cli.js migration:run",
     "seed:config": "ts-node ./node_modules/typeorm-seeding/dist/cli.js config",
     "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
     "schema:drop": "ts-node ./node_modules/typeorm/cli.js schema:drop",
     "schema:sync": "ts-node ./node_modules/typeorm/cli.js schema:sync",
     "test": "jest --watch",
-    "test:report": "jest",
+    "test:coverage": "jest",
     "prettier:format": "prettier --write .",
+    "lint": "eslint ./src/ --ext .ts,.js,.json",
     "lint:fix": "eslint --fix ./src/ --ext .ts,.js,.json",
-    "type-check": "tsc -p tsconfig.json --noEmit"
+    "type-check": "tsc -p tsconfig.json --noEmit",
+    "get-db-credentials": "node ./src/scripts/get-db-credentials.js",
+    "get_db_backup-id": "node ./src/scripts/get_db_backup-id.js"
   },
   "dependencies": {
     "aws-sdk": "^2.1084.0",

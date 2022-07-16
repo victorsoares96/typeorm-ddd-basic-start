@@ -21,9 +21,9 @@ const prodConfig = {
   type: 'postgres',
   host: process.env.HOST,
   port: process.env.PG_PORT,
-  /*ssl: {
+  ssl: {
     rejectUnauthorized: false,
-  },*/
+  },
   username: process.env.USERNAME,
   password: process.env.PASSWORD,
   database: process.env.DATABASE,
