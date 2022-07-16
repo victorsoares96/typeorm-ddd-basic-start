@@ -75,6 +75,13 @@ jobs:
       - name: Running migrations
         run: "heroku run --app ${{env.STAGED_APP_NAME}} yarn prod:typeorm:migrate"
 
+      - name: Remove publish errors label
+        if: ${{contains(github.event.pull_request.labels.*.name, 'sync:publish:error')}}
+        run: |
+          gh pr edit --remove-label sync:publish:error
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Mark as Published
         run: |
           gh pr comment ${{ github.event.number }} --body 'Republish Successfully: https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label published
