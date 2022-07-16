@@ -1,0 +1,175 @@
+name: Publish Staged
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+env:
+  STAGED_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-${{github.event.number}}
+  DEV_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-dev
+
+jobs:
+  validate:
+    name: "Validate"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+
+      - name: Linting
+        run: yarn lint
+
+      - name: Type Check
+        run: yarn type-check
+
+      - name: Unit Testing
+        run: yarn test:coverage
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{secrets.CODECOV_TOKEN}} # not required for public repos
+          directory: coverage
+          fail_ci_if_error: true
+
+      - name: Build
+        run: yarn build
+
+  createApplication:
+    name: "Create Application"
+    runs-on: ubuntu-latest
+    needs: validate
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip:publish') }}
+
+    steps:
+      - name: Login to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: ${{env.STAGED_APP_NAME}}
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          justlogin: true
+
+      - name: Create Heroku app
+        run: heroku apps:create ${{env.STAGED_APP_NAME}}
+
+      - name: Set buildpacks
+        run: heroku buildpacks:add heroku/nodejs --app ${{env.STAGED_APP_NAME}}
+
+  createDatabase:
+    name: "Create Database"
+    runs-on: ubuntu-latest
+    needs: createApplication
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip:publish') }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Login to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: ${{env.STAGED_APP_NAME}}
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          justlogin: true
+
+      - name: Create Database
+        run: heroku addons:create heroku-postgresql:hobby-dev --app ${{env.STAGED_APP_NAME}}
+
+      - name: Waiting Database Provision
+        run: heroku pg:wait --app ${{env.STAGED_APP_NAME}}
+
+      - name: Create File With Database Credentials
+        run: heroku pg:credentials:url --app ${{env.STAGED_APP_NAME}} > database_credentials
+
+      - name: Handle Database Credentials File to a valid format
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const script = require('./src/scripts/get_db_credentials.js')
+            await script()
+
+      - name: Copy database environment variables to Heroku app
+        run: |
+          cat database_credentials | xargs heroku config:set --app=${{env.STAGED_APP_NAME}}
+      - name: Copy Dev Database Data to Staged Database
+        run: heroku pg:copy ${{env.DEV_APP_NAME}}::DATABASE DATABASE --app ${{env.STAGED_APP_NAME}} --confirm ${{env.STAGED_APP_NAME}}
+
+  publish:
+    name: "Publish"
+    runs-on: ubuntu-latest
+    needs: createDatabase
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip:publish') }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Login to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: ${{env.STAGED_APP_NAME}}
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          justlogin: true
+
+      - name: Add Heroku remote
+        run: heroku git:remote --app ${{env.STAGED_APP_NAME}}
+
+      - name: Push to Heroku
+        run: git push heroku ${{github.head_ref}}:master
+
+      - name: Running migrations
+        run: "heroku run --app ${{env.STAGED_APP_NAME}} yarn prod:typeorm:migrate"
+
+      - name: Remove unpublished label
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'unpublish:error') }}
+        run: |
+          gh pr edit --remove-label unpublish:error
+
+      - name: Mark as Published
+        run: |
+          gh pr comment ${{ github.event.number }} --body '[Heroku app](https://dashboard.heroku.com/apps/${{env.STAGED_APP_NAME}}): https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label published
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publishFailed:
+    name: "Publish failed"
+    runs-on: ubuntu-latest
+    needs: publish
+    if: always() && !contains(github.event.pull_request.labels.*.name, 'skip:publish') && needs.publish.result == 'failure'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Mark as publish failed
+        run: |
+          gh pr comment ${{ github.event.number }} --body 'Republish failed: https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label publish:error
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Remove published label
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'published') }}
+        run: |
+          gh pr edit --remove-label published
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
