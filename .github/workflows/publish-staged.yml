@@ -126,9 +126,8 @@ jobs:
       - name: Running migrations
         run: "heroku run --app ${{env.STAGED_APP_NAME}} yarn prod:typeorm:migrate"
 
-      - name: Add comment to PR
+      - name: Mark as Published
         run: |
-          gh pr comment ${{ github.event.number }} --body '[Heroku app](https://dashboard.heroku.com/apps/${{env.STAGED_APP_NAME}}): https://${{env.STAGED_APP_NAME}}.herokuapp.com'
-          | gh pr edit --add-label published
+          gh pr comment ${{ github.event.number }} --body '[Heroku app](https://dashboard.heroku.com/apps/${{env.STAGED_APP_NAME}}): https://${{env.STAGED_APP_NAME}}.herokuapp.com' | gh pr edit --add-label published
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
