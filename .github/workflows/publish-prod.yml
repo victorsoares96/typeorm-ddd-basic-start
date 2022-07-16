@@ -1,9 +1,12 @@
-name: release production
+name: Publish Production
 
 on:
   push:
     branches:
-      - "master"
+      - master
+
+env:
+  PROD_APP_NAME: ${{secrets.HEROKU_APP_NAME}}-prod
 
 jobs:
   validate:
@@ -12,20 +15,31 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Use Node.js 16.x
         uses: actions/setup-node@v3
         with:
           node-version: "16.x"
+
       - name: Install dependencies
         run: yarn --frozen-lockfile
-      - name: Formatting
-        run: yarn prettier:format
+
       - name: Linting
-        run: yarn lint:fix
+        run: yarn lint
+
       - name: Type Check
         run: yarn type-check
+
       - name: Unit Testing
         run: yarn test:coverage
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{secrets.CODECOV_TOKEN}} # not required for public repos
+          directory: coverage
+          fail_ci_if_error: true
+
       - name: Build
         run: yarn build
 
@@ -40,16 +54,20 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{github.head_ref}}
+
       - name: Login to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: ${{secrets.HEROKU_PROD_APP_NAME}}
+          heroku_app_name: ${{env.PROD_APP_NAME}}
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           justlogin: true
+
       - name: Add Heroku remote
-        run: heroku git:remote --app ${{secrets.HEROKU_PROD_APP_NAME}}
+        run: heroku git:remote --app ${{env.PROD_APP_NAME}}
+
       - name: Push to Heroku
         run: git push heroku ${{github.head_ref}}:master
+
       - name: Running migrations
-        run: "heroku run --app ${{secrets.HEROKU_PROD_APP_NAME}} yarn prod:typeorm:migrate"
+        run: "heroku run --app ${{env.PROD_APP_NAME}} yarn prod:typeorm:migrate"
