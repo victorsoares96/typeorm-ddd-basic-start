@@ -1,5 +1,3 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { validate } from 'class-validator';
 
 import { CreatePermissionDTO } from '@modules/permissions/dtos/CreatePermissionDTO';

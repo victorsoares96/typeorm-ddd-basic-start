@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Router } from 'express';
 import { SessionController } from '../controllers/SessionController';
 

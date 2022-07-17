@@ -32,6 +32,7 @@
     "class-transformer": "^0.5.0",
     "class-validator": "^0.13.1",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.3",
     "dotenv": "^16.0.1",
     "express": "^4.17.1",
     "express-async-errors": "^3.1.1",

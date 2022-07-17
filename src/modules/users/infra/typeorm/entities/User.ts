@@ -7,6 +7,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -14,6 +15,7 @@ import { hashSync } from 'bcryptjs';
 
 import { EUserStatus } from '@modules/users/utils/enums/e-user';
 import { AccessProfile } from '@modules/accessProfiles/infra/typeorm/entities/AccessProfile';
+import { RefreshToken } from './RefreshToken';
 
 @Entity('user')
 export class User {
@@ -95,6 +97,12 @@ export class User {
 
   @Column({ name: 'password' })
   password: string;
+
+  @OneToMany(() => RefreshToken, refreshToken => refreshToken.user, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  refreshTokens?: RefreshToken[];
 
   @BeforeInsert()
   @BeforeUpdate()

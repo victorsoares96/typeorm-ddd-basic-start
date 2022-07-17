@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable no-restricted-syntax */
 import { FindManyAccessProfileDTO } from '@modules/accessProfiles/dtos/FindManyAccessProfileDTO';
 import { CreateUserDTO } from '@modules/users/dtos/CreateUserDTO';
 import { User } from '@modules/users/infra/typeorm/entities/User';

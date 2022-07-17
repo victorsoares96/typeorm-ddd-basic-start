@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { sign } from 'jsonwebtoken';
 import { injectable, inject } from 'tsyringe';
 

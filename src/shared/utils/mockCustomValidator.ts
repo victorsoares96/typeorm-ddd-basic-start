@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { getMetadataStorage, ValidationArguments } from 'class-validator';
 
 export function mockCustomValidator<
