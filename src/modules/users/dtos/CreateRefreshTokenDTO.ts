@@ -1,4 +1,5 @@
+import { User } from '../infra/typeorm/entities/User';
+
 export interface CreateRefreshTokenDTO {
-  userId: string;
-  expiresIn: number;
+  user: User;
 }
